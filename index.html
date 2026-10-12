@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedCare - Medical Store Management System</title>
+  <meta name="description" content="Comprehensive, modern, and responsive pharmacy and medical store management platform featuring inventory, billing/POS, expiry tracking, supplier/customer management, and Java MySQL backend architecture.">
+  <meta property="og:title" content="MedCare - Medical Store Management System">
+  <meta property="og:description" content="Comprehensive, modern, and responsive pharmacy and medical store management platform.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body class="landing-body">
+  <div class="landing-container">
+
+    <!-- Hero / Header Section -->
+    <header class="landing-hero">
+      <div class="landing-logo-badge">
+        <img src="/assets/logo.svg" alt="MedCare Pharmacy Logo" class="landing-logo-img">
+      </div>
+
+      <h1 class="landing-title">MedCare Pharmacy</h1>
+      <p class="landing-subtitle">Smart Medical Store &amp; Pharmacy Management System</p>
+      <p class="landing-description">
+        Secure &bull; Efficient &bull; Integrated<br>
+        Manage medicines, inventory, billing, and expiry with a centralized pharmacy management system.
+      </p>
+
+      <!-- Primary Staff Login CTA -->
+      <div class="landing-actions">
+        <a href="login.html" class="btn btn-primary landing-btn-primary" id="btn-staff-login">
+          <i class="fa-solid fa-right-to-bracket me-2"></i> Staff Login
+        </a>
+      </div>
+    </header>
+
+    <!-- Core Modules Section (Clearly separated from hero) -->
+    <section class="landing-modules-section" aria-labelledby="core-modules-heading">
+      <div class="section-header">
+        <div class="section-badge">System Capabilities</div>
+        <h2 id="core-modules-heading" class="section-title">Core Modules</h2>
+        <p class="section-subtitle">Comprehensive tools engineered for clinical dispensing, retail operations, and real-time inventory control</p>
+      </div>
+
+      <!-- 3 Columns x 2 Rows Responsive Grid (Informational Only) -->
+      <div class="landing-modules-grid">
+        <!-- 1. Medicine Management -->
+        <div class="module-card">
+          <div class="module-icon-wrap icon-blue">
+            <i class="fa-solid fa-pills"></i>
+          </div>
+          <div class="module-content">
+            <h3 class="module-title">Medicine Management</h3>
+            <p class="module-desc">Centralized catalog tracking generics, therapeutic categories, dosage forms, manufacturer details, and pricing structures.</p>
+          </div>
+        </div>
+
+        <!-- 2. Inventory Control -->
+        <div class="module-card">
+          <div class="module-icon-wrap icon-teal">
+            <i class="fa-solid fa-boxes-stacked"></i>
+          </div>
+          <div class="module-content">
+            <h3 class="module-title">Inventory Control</h3>
+            <p class="module-desc">Real-time batch stock tracking with automatic minimum reorder levels, stock adjustments, and low-inventory warnings.</p>
+          </div>
+        </div>
+
+        <!-- 3. Expiry Tracking -->
+        <div class="module-card">
+          <div class="module-icon-wrap icon-amber">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </div>
+          <div class="module-content">
+            <h3 class="module-title">Expiry Tracking</h3>
+            <p class="module-desc">Proactive warning radar identifying medicines approaching expiry within 30-90 days with safe quarantine isolation.</p>
+          </div>
+        </div>
+
+        <!-- 4. POS Billing -->
+        <div class="module-card">
+          <div class="module-icon-wrap icon-emerald">
+            <i class="fa-solid fa-cash-register"></i>
+          </div>
+          <div class="module-content">
+            <h3 class="module-title">POS Billing</h3>
+            <p class="module-desc">Rapid clinical counter checkout featuring automated GST calculation, customer lookup, split payments, and receipt printing.</p>
+          </div>
+        </div>
+
+        <!-- 5. Reports & Analytics -->
+        <div class="module-card">
+          <div class="module-icon-wrap icon-purple">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+          </div>
+          <div class="module-content">
+            <h3 class="module-title">Reports &amp; Analytics</h3>
+            <p class="module-desc">Daily revenue auditing, sales performance analytics, purchase order ledgers, and fast-moving pharmaceutical reports.</p>
+          </div>
+        </div>
+
+        <!-- 6. Java & MySQL -->
+        <div class="module-card">
+          <div class="module-icon-wrap icon-slate">
+            <i class="fa-solid fa-database"></i>
+          </div>
+          <div class="module-content">
+            <h3 class="module-title">Java &amp; MySQL</h3>
+            <p class="module-desc">Enterprise 3-tier architecture powered by Java JDBC connection pooling, DAO layers, and robust relational database integrity.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Download Section -->
+    <div class="landing-download-card">
+      <a href="/medcare-pharmacy-project.zip" download="medcare-pharmacy-project.zip" class="landing-download-btn">
+        <i class="fa-solid fa-file-zipper"></i>
+        <span>Download Full Project (.ZIP)</span>
+      </a>
+      <p class="landing-download-note">Complete offline package: HTML5, CSS, JS, Assets, Java Backend &amp; MySQL Database</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+      <div class="footer-copy">&copy; 2026 MedCare Pharmacy &middot; Pharmacy Management System</div>
+      <div class="footer-tech">Java &middot; JDBC &middot; MySQL Architecture</div>
+    </footer>
+
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // Redirect already-authenticated users directly to dashboard
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const sessionRaw = localStorage.getItem('medcare_auth_session_user');
+        if (sessionRaw) {
+          const user = JSON.parse(sessionRaw);
+          if (user && user.id) {
+            // Only auto-redirect if they navigated here with ?redirect param
+            // or if they are actively logged in
+            if (window.location.search.includes('redirect') || document.referrer.includes('login.html')) {
+              window.location.href = 'dashboard.html';
+            }
+          }
+        }
+      } catch (e) {
+        // No valid session — stay on landing page
+      }
+    });
+  </script>
+</body>
+</html>

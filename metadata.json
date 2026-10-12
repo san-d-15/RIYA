@@ -1,0 +1,6 @@
+{
+  "name": "MedCare - Medical Store Management System",
+  "description": "Comprehensive, modern, and responsive pharmacy and medical store management platform featuring inventory, billing/POS, expiry tracking, supplier/customer management, and Java MySQL backend architecture.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

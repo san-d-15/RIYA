@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Store Settings - MedCare Pharmacy</title>
+  <meta name="description" content="Configure medical store profile, GSTIN, invoice prefix, and credentials.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="app-sidebar"></aside>
+
+    <div class="main-wrapper">
+      <header class="top-header" id="app-header"></header>
+
+      <main class="content-body">
+        
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1>Pharmacy Store Settings & Profile</h1>
+            <p>Maintain your clinical branding, billing rules, tax registration, and user credentials.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline text-danger-600 border-red-200 hover:bg-red-50" id="btn-reset-db">
+              <i class="fa-solid fa-arrows-rotate"></i> Reset Database To Demo Defaults
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Store Profile & Invoicing Rules (2 cols) -->
+          <div class="lg:col-span-2 card">
+            <div class="card-header">
+              <h2>Medical Store Configuration</h2>
+              <span class="text-xs text-slate-500 font-mono">Printed on All Bills</span>
+            </div>
+
+            <form id="store-settings-form" class="p-6 space-y-4">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label" for="setting-store-name">Store Trade Name <span class="required">*</span></label>
+                  <input type="text" id="setting-store-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="setting-store-tagline">Clinical Tagline</label>
+                  <input type="text" id="setting-store-tagline" class="form-control">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="setting-store-address">Registered Pharmacy Address <span class="required">*</span></label>
+                <textarea id="setting-store-address" rows="2" class="form-control" required></textarea>
+              </div>
+
+              <div class="form-grid grid-3">
+                <div class="form-group">
+                  <label class="form-label" for="setting-city">City, State & PIN</label>
+                  <input type="text" id="setting-city" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="setting-phone">Store Contact Phone <span class="required">*</span></label>
+                  <input type="text" id="setting-phone" class="form-control font-mono" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="setting-email">Official Support Email <span class="required">*</span></label>
+                  <input type="email" id="setting-email" class="form-control" required>
+                </div>
+              </div>
+
+              <div class="form-grid grid-3 pt-3 border-t border-slate-200">
+                <div class="form-group">
+                  <label class="form-label" for="setting-gst">GSTIN / VAT Number</label>
+                  <input type="text" id="setting-gst" class="form-control font-mono uppercase">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="setting-dl">Drug License Number</label>
+                  <input type="text" id="setting-dl" class="form-control font-mono uppercase">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="setting-inv-prefix">Invoice Serial Prefix</label>
+                  <input type="text" id="setting-inv-prefix" class="form-control font-mono">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="setting-tax-rate">Default Pharma Tax (GST %)</label>
+                <input type="number" step="0.5" min="0" max="30" id="setting-tax-rate" class="form-control font-mono w-32">
+                <span class="text-xs text-slate-400">Standard GST bracket on essential formulations in India is 5%.</span>
+              </div>
+
+              <div class="pt-4 border-t border-slate-200 flex justify-end">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa-solid fa-floppy-disk"></i> Save Store Settings
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- User Account & Password Column (1 col) -->
+          <div class="space-y-6">
+            
+            <!-- Current User Profile Box -->
+            <div class="card p-6">
+              <div class="flex items-center gap-4 mb-4">
+                <div class="w-16 h-16 rounded-xl flex items-center justify-center font-bold text-xl text-white shadow-sm border border-slate-200 select-none flex-shrink-0" style="background: linear-gradient(135deg, #0284c7, #0d9488);" id="profile-avatar-box">
+                  <span id="profile-initials">MC</span>
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-900 text-lg" id="profile-display-name">Signed In User</h3>
+                  <span class="badge badge-success" id="profile-display-role">Admin</span>
+                </div>
+              </div>
+
+              <div class="space-y-3 text-xs">
+                <div>
+                  <span class="text-slate-400 block">Full Name:</span>
+                  <input type="text" id="profile-name" class="form-control mt-1 text-xs" readonly>
+                </div>
+                <div>
+                  <span class="text-slate-400 block">Email Address:</span>
+                  <input type="email" id="profile-email" class="form-control mt-1 text-xs" readonly>
+                </div>
+                <div>
+                  <span class="text-slate-400 block">Security Role:</span>
+                  <input type="text" id="profile-role" class="form-control mt-1 text-xs" readonly>
+                </div>
+              </div>
+            </div>
+
+            <!-- Change Password Card -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Security & Password</h3>
+              </div>
+              <form id="change-password-form" class="p-4 space-y-3">
+                <div class="form-group">
+                  <label class="form-label" for="current-password">Current Password</label>
+                  <input type="password" id="current-password" class="form-control text-xs font-mono" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="new-password">New Password</label>
+                  <input type="password" id="new-password" class="form-control text-xs font-mono" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="confirm-password">Confirm Password</label>
+                  <input type="password" id="confirm-password" class="form-control text-xs font-mono" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-outline btn-sm w-full mt-2">
+                  <i class="fa-solid fa-key"></i> Update Password
+                </button>
+              </form>
+            </div>
+
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/settings.js"></script>
+</body>
+</html>

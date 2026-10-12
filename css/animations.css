@@ -1,0 +1,537 @@
+/* ==========================================================================
+   MedCare Pharmacy - Keyframe Animations & Micro-Interactions
+   Colors: Medical Blue (#1976D2), Teal/Green (#00A896), Soft White
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Animated Logo Keyframe Sequence (1.5s - 2.0s Duration)
+   Sequence: Cross scale-in -> Capsule slide -> Glow bloom -> Text reveal -> Gentle float
+   -------------------------------------------------------------------------- */
+
+/* 1.1 Medical Cross Fade & Scale In (0.0s - 0.7s) */
+@keyframes crossFadeScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.65) rotate(-6deg);
+    transform-origin: 32px 32px;
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.05) rotate(1deg);
+    transform-origin: 32px 32px;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    transform-origin: 32px 32px;
+  }
+}
+
+/* 1.2 Capsule / Pill Slide In from Side (0.3s - 1.0s) */
+@keyframes capsuleSlideIn {
+  0% {
+    opacity: 0;
+    transform: rotate(-32deg) translate(28px, -18px) scale(0.8);
+    transform-origin: 32px 32px;
+  }
+  65% {
+    opacity: 1;
+    transform: rotate(-32deg) translate(-2px, 1px) scale(1.03);
+    transform-origin: 32px 32px;
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-32deg) translate(0, 0) scale(1);
+    transform-origin: 32px 32px;
+  }
+}
+
+/* 1.3 Subtle Aura Glow Blooming (0.6s - 1.4s) */
+@keyframes auraGlowBloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+    stroke-width: 0.5px;
+    transform-origin: 32px 32px;
+  }
+  60% {
+    opacity: 0.6;
+    transform: scale(1.08);
+    stroke-width: 2.2px;
+    transform-origin: 32px 32px;
+  }
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+    stroke-width: 1.5px;
+    transform-origin: 32px 32px;
+  }
+}
+
+/* 1.4 Health Heartline Pulse Draw (0.8s - 1.4s) */
+@keyframes heartlineDraw {
+  0% {
+    opacity: 0;
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.95;
+    stroke-dasharray: 40;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* 1.5 Brand Text "MedCare" Smooth Fade & Slide Up (0.9s - 1.6s) */
+@keyframes textFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 1.6 Subtitle "PHARMACY" Gentle Letter-Spacing Unfold (1.1s - 1.8s) */
+@keyframes subtitleUnfold {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+    letter-spacing: 2px;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 4.5px;
+  }
+}
+
+/* 1.7 Post-Entrance Settled Ambient Breath / Floating (Tranquil, not distracting) */
+@keyframes subtleFloat {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3.5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes subtlePulseAura {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(0.98);
+    transform-origin: 32px 32px;
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.03);
+    transform-origin: 32px 32px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Animated Logo Classes Attached to SVG Nodes
+   -------------------------------------------------------------------------- */
+.animated-logo-root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+
+/* Whole symbol floating after entrance completes */
+.animated-logo-root.has-float .logo-symbol-group {
+  animation: subtleFloat 4.5s 1.9s ease-in-out infinite alternate;
+}
+
+.animated-logo-root .logo-cross {
+  animation: crossFadeScale 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animated-logo-root .logo-capsule {
+  animation: capsuleSlideIn 0.8s 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animated-logo-root .logo-glow-aura {
+  animation: auraGlowBloom 0.9s 0.55s ease-out both;
+}
+
+.animated-logo-root.has-float .logo-glow-aura {
+  animation: auraGlowBloom 0.9s 0.55s ease-out both, subtlePulseAura 4s 2s ease-in-out infinite;
+}
+
+.animated-logo-root .logo-heartline {
+  animation: heartlineDraw 0.7s 0.75s ease-out both;
+}
+
+.animated-logo-root .logo-brand-name {
+  animation: textFadeIn 0.65s 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animated-logo-root .logo-subtitle-group {
+  animation: subtitleUnfold 0.6s 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Sidebar Logo (Static & Settled by default; small clean hover) */
+.sidebar-brand-svg {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.brand-logo:hover .sidebar-brand-svg {
+  transform: scale(1.04);
+}
+
+.brand-logo:hover .sidebar-brand-svg .logo-glow-aura {
+  opacity: 0.6;
+}
+
+/* --------------------------------------------------------------------------
+   2. Background Medical Ambient Animations
+   Soft, subtle floating elements: circles, medical crosses, pill capsules, blobs
+   -------------------------------------------------------------------------- */
+@keyframes ambientDriftSlow {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate(18px, -24px) rotate(4deg);
+  }
+  66% {
+    transform: translate(-14px, -12px) rotate(-3deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+@keyframes ambientDriftReverse {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate(-20px, 18px) rotate(-5deg);
+  }
+  66% {
+    transform: translate(16px, 10px) rotate(4deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+@keyframes ambientFloatPlus {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.14;
+  }
+  50% {
+    transform: translateY(-16px) scale(1.06);
+    opacity: 0.26;
+  }
+}
+
+@keyframes ambientBlobPulse {
+  0%, 100% {
+    transform: scale(1) translate(0, 0);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.12) translate(15px, -10px);
+    opacity: 0.6;
+  }
+}
+
+/* Ambient Layer Container */
+.medical-ambient-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Floating Soft Gradients / Blobs */
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(75px);
+  will-change: transform, opacity;
+  animation: ambientBlobPulse 14s ease-in-out infinite alternate;
+}
+
+.bg-blob-blue {
+  width: 440px;
+  height: 440px;
+  background: radial-gradient(circle, rgba(25, 118, 210, 0.22) 0%, rgba(25, 118, 210, 0.02) 70%);
+  top: -8%;
+  left: -6%;
+}
+
+.bg-blob-teal {
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(0, 168, 150, 0.20) 0%, rgba(0, 168, 150, 0.01) 70%);
+  bottom: -10%;
+  right: -5%;
+  animation-duration: 18s;
+  animation-delay: -5s;
+}
+
+.bg-blob-sky {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(56, 189, 248, 0) 70%);
+  top: 45%;
+  left: 35%;
+  animation-duration: 20s;
+  animation-delay: -9s;
+}
+
+/* Floating Medical Elements: Small Circles, Crosses, Capsule outlines */
+.ambient-element {
+  position: absolute;
+  opacity: 0.12;
+  color: #1976D2;
+  will-change: transform;
+}
+
+.ambient-element.teal {
+  color: #00A896;
+}
+
+.ambient-cross-1 {
+  top: 14%;
+  left: 10%;
+  font-size: 26px;
+  animation: ambientFloatPlus 7s ease-in-out infinite;
+}
+
+.ambient-cross-2 {
+  bottom: 22%;
+  left: 28%;
+  font-size: 20px;
+  animation: ambientFloatPlus 9s 2s ease-in-out infinite;
+}
+
+.ambient-cross-3 {
+  top: 24%;
+  right: 18%;
+  font-size: 22px;
+  animation: ambientFloatPlus 8s 1.5s ease-in-out infinite;
+}
+
+.ambient-circle-1 {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #00A896;
+  top: 32%;
+  left: 18%;
+  animation: ambientDriftSlow 15s ease-in-out infinite;
+}
+
+.ambient-circle-2 {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #1976D2;
+  bottom: 18%;
+  right: 12%;
+  animation: ambientDriftReverse 18s ease-in-out infinite;
+}
+
+.ambient-circle-3 {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00A896;
+  top: 70%;
+  left: 8%;
+  opacity: 0.25;
+  animation: ambientDriftSlow 12s 3s ease-in-out infinite;
+}
+
+.ambient-pill-1 {
+  width: 44px;
+  height: 18px;
+  border: 1.5px solid #1976D2;
+  border-radius: 12px;
+  top: 75%;
+  left: 36%;
+  transform: rotate(-25deg);
+  animation: ambientDriftSlow 22s 1s ease-in-out infinite;
+}
+
+.ambient-pill-2 {
+  width: 38px;
+  height: 16px;
+  border: 1.5px solid #00A896;
+  border-radius: 12px;
+  top: 18%;
+  right: 32%;
+  transform: rotate(35deg);
+  animation: ambientDriftReverse 20s 4s ease-in-out infinite;
+}
+
+/* --------------------------------------------------------------------------
+   3. Login Card Glassmorphism & Entrance
+   -------------------------------------------------------------------------- */
+@keyframes loginCardEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.login-card-glass {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 
+    0 10px 25px -5px rgba(15, 23, 42, 0.08),
+    0 20px 48px -12px rgba(25, 118, 210, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+  border-radius: 20px;
+  animation: loginCardEnter 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.login-card-glass:hover {
+  box-shadow: 
+    0 16px 32px -6px rgba(15, 23, 42, 0.10),
+    0 28px 56px -10px rgba(0, 168, 150, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+}
+
+/* Left Hero Pattern Panel */
+.login-visual-panel {
+  background: linear-gradient(145deg, #0A2540 0%, #0F3759 45%, #054854 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-pattern-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.08) 1.5px, transparent 0);
+  background-size: 24px 24px;
+  opacity: 0.7;
+}
+
+/* --------------------------------------------------------------------------
+   4. Modern Blue-to-Teal Button & Spinner Animations
+   -------------------------------------------------------------------------- */
+.btn-login-gradient {
+  background: linear-gradient(135deg, #1976D2 0%, #0288D1 50%, #00A896 100%);
+  background-size: 200% auto;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 14px -2px rgba(25, 118, 210, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-login-gradient:hover:not(:disabled) {
+  background-position: right center;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px -4px rgba(0, 168, 150, 0.42);
+}
+
+.btn-login-gradient:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px -1px rgba(25, 118, 210, 0.3);
+}
+
+.btn-login-gradient:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none;
+}
+
+/* Loading Spinner */
+@keyframes spinSmooth {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spinSmooth 0.75s linear infinite;
+}
+
+/* Input Focus Glow with Medical Teal Accent */
+.input-medcare {
+  transition: all 0.2s ease;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 10px;
+}
+
+.input-medcare:focus {
+  border-color: #00A896;
+  box-shadow: 0 0 0 3.5px rgba(0, 168, 150, 0.15);
+  outline: none;
+  background-color: #FFFFFF;
+}
+
+/* --------------------------------------------------------------------------
+   5. Accessibility: Respect prefers-reduced-motion
+   Disables all floating animations, entrance transforms, and infinite loops
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .animated-logo-root.has-float .logo-symbol-group,
+  .animated-logo-root .logo-cross,
+  .animated-logo-root .logo-capsule,
+  .animated-logo-root .logo-glow-aura,
+  .animated-logo-root .logo-heartline,
+  .animated-logo-root .logo-brand-name,
+  .animated-logo-root .logo-subtitle-group,
+  .bg-blob,
+  .ambient-element,
+  .login-card-glass {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .btn-spinner {
+    animation: spinSmooth 1.5s linear infinite !important;
+  }
+}

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purchases & Restocking - MedCare Pharmacy</title>
+  <meta name="description" content="Procure pharmacy inventory from authorized suppliers and auto-increment stock batches.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="app-sidebar"></aside>
+
+    <div class="main-wrapper">
+      <header class="top-header" id="app-header"></header>
+
+      <main class="content-body">
+        
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1>Stock Purchases & Procurement</h1>
+            <p>Log incoming supplier consignments with automatic inventory quantity increments.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openNewPurchaseModal()">
+              <i class="fa-solid fa-cart-plus"></i> Record New Purchase
+            </button>
+            <a href="inventory.html" class="btn btn-outline">
+              <i class="fa-solid fa-boxes-stacked"></i> Check Stock
+            </a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Procurement History & Purchase Invoices</h2>
+            <span class="text-xs text-slate-500">Live Supplier Inflow</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Purchase Invoice #</th>
+                  <th>Supplier</th>
+                  <th>Date</th>
+                  <th>Primary Medicine</th>
+                  <th class="text-center">Units Received</th>
+                  <th class="text-right">Total Amount</th>
+                  <th class="text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody id="purchases-tbody">
+                <!-- Dynamically populated by js/purchases.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- New Purchase Order Modal -->
+  <div class="modal-backdrop" id="purchase-modal">
+    <div class="modal-box modal-lg">
+      <div class="modal-header">
+        <h3>Record Supplier Purchase Consignment</h3>
+        <button class="modal-close-btn" onclick="MedCareUI.closeModal('purchase-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="purchase-form">
+        <div class="modal-body space-y-4">
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="purchase-supplier-select">Supplier / Distributor <span class="required">*</span></label>
+              <select id="purchase-supplier-select" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="purchase-inv-no">Supplier Invoice / Challan Number</label>
+              <input type="text" id="purchase-inv-no" class="form-control font-mono uppercase" placeholder="e.g. PUR-2026-0099">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="purchase-medicine-select">Select Medicine To Restock <span class="required">*</span></label>
+            <select id="purchase-medicine-select" class="form-control" required></select>
+          </div>
+
+          <div class="form-grid grid-3">
+            <div class="form-group">
+              <label class="form-label" for="purchase-quantity">Received Quantity <span class="required">*</span></label>
+              <input type="number" min="1" id="purchase-quantity" class="form-control font-mono font-bold" placeholder="50" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="purchase-unit-price">Unit Purchase Rate (₹) <span class="required">*</span></label>
+              <input type="number" step="0.01" min="0" id="purchase-unit-price" class="form-control font-mono" placeholder="24.50" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Calculated Total</label>
+              <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-mono font-bold text-primary-700 text-sm" id="purchase-total-display">
+                ₹0.00
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="purchase-batch">Batch Number <span class="required">*</span></label>
+              <input type="text" id="purchase-batch" class="form-control font-mono uppercase" placeholder="e.g. BATCH-2026-N1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="purchase-expiry">Expiry Date <span class="required">*</span></label>
+              <input type="date" id="purchase-expiry" class="form-control font-mono font-bold" required>
+            </div>
+          </div>
+
+          <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+            <span>Upon saving, stock will be automatically incremented in the database and audit trail created.</span>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="MedCareUI.closeModal('purchase-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-check"></i> Save Purchase & Increment Stock
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/purchases.js"></script>
+</body>
+</html>

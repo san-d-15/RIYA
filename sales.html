@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POS Pharmacy Billing - MedCare</title>
+  <meta name="description" content="High-speed point of sale pharmacy dispensing and invoice generation.">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="app-sidebar"></aside>
+
+    <div class="main-wrapper">
+      <header class="top-header" id="app-header"></header>
+
+      <main class="content-body">
+        
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1>Point-of-Sale (POS) Billing Terminal</h1>
+            <p>Fast medicine dispensing, instant tax/discount calculation, and thermal/A4 invoice generation.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline" onclick="clearCart()">
+              <i class="fa-solid fa-trash-can"></i> Clear Cart
+            </button>
+            <a href="reports.html" class="btn btn-outline">
+              <i class="fa-solid fa-receipt"></i> Daily Sales Log
+            </a>
+          </div>
+        </div>
+
+        <!-- 3-Column POS Billing Workspace -->
+        <div class="pos-layout">
+          
+          <!-- Column 1: Medicine Search & Catalog List -->
+          <div class="card pos-catalog-panel">
+            <div class="p-3 border-b border-slate-200">
+              <div class="search-input-group w-full max-w-none mb-2">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="pos-search-input" placeholder="Search medicine or scan barcode..." autofocus autocomplete="off">
+              </div>
+
+              <select id="pos-category-filter" class="select-control w-full text-xs">
+                <option value="">All Categories (Click to filter)</option>
+                <option value="Antibiotics">Antibiotics</option>
+                <option value="Analgesics & Antipyretics">Analgesics & Antipyretics</option>
+                <option value="Antidiabetics">Antidiabetics</option>
+                <option value="Cardiovascular & Antihypertensives">Cardiovascular</option>
+                <option value="Gastrointestinal">Gastrointestinal</option>
+                <option value="Respiratory & Antiallergic">Respiratory</option>
+                <option value="Vitamins & Nutritional Supplements">Vitamins & Supplements</option>
+                <option value="Dermatological & Topicals">Dermatology</option>
+              </select>
+            </div>
+
+            <div class="p-3 flex-1 overflow-hidden flex flex-col">
+              <div class="pos-medicine-list" id="pos-medicine-list">
+                <!-- Dynamically populated by js/billing.js -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Selected Cart Items -->
+          <div class="card pos-cart-panel">
+            <div class="card-header">
+              <h2 class="flex items-center gap-2">
+                <i class="fa-solid fa-cart-shopping text-primary-600"></i>
+                <span>Dispensing Cart</span>
+              </h2>
+              <span class="badge badge-primary font-mono" id="cart-count-badge">0 items</span>
+            </div>
+
+            <div class="p-3 flex-1 overflow-hidden flex flex-col">
+              <!-- Cart Header -->
+              <div class="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-2 px-2 py-1 text-xs font-bold uppercase text-slate-400 border-b border-slate-200">
+                <span>Medicine</span>
+                <span class="text-center">Qty</span>
+                <span class="text-right">Rate</span>
+                <span class="text-right">Total</span>
+                <span class="w-6"></span>
+              </div>
+
+              <!-- Cart Row Items Container -->
+              <div class="pos-cart-items" id="cart-items-container">
+                <!-- Dynamically populated by js/billing.js -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 3: Customer Details & Billing Summary -->
+          <div class="card pos-billing-summary">
+            <div class="card-header">
+              <h2>Invoice Summary</h2>
+              <span class="text-xs text-emerald-600 font-bold"><i class="fa-solid fa-shield-halved"></i> Live Stock Sync</span>
+            </div>
+
+            <div class="p-4 flex flex-col flex-1 justify-between">
+              <div>
+                <!-- Customer Selection -->
+                <div class="form-group mb-4">
+                  <label class="form-label" for="billing-customer-select">Patient / Customer</label>
+                  <select id="billing-customer-select" class="form-control text-xs"></select>
+                </div>
+
+                <!-- Subtotal -->
+                <div class="summary-row">
+                  <span>Subtotal Amount:</span>
+                  <span class="font-mono font-bold text-slate-900" id="pos-subtotal">₹0.00</span>
+                </div>
+
+                <!-- Discount -->
+                <div class="summary-row">
+                  <div class="flex items-center gap-2">
+                    <span>Discount (%):</span>
+                    <input type="number" id="discount-percentage" min="0" max="100" value="0" class="w-14 px-1.5 py-0.5 border border-slate-300 rounded font-mono text-xs text-center">
+                  </div>
+                  <span class="font-mono text-emerald-600 font-bold" id="pos-discount-amount">- ₹0.00</span>
+                </div>
+
+                <!-- Tax / GST -->
+                <div class="summary-row">
+                  <span>GST Tax (5%):</span>
+                  <span class="font-mono font-bold text-slate-700" id="pos-tax-amount">+ ₹0.00</span>
+                </div>
+
+                <!-- Grand Total Display -->
+                <div class="grand-total-box">
+                  <div>
+                    <div class="label">Grand Total</div>
+                    <div class="text-[10px] text-white/70">Inclusive of all taxes</div>
+                  </div>
+                  <div class="amount" id="pos-grand-total">₹0.00</div>
+                </div>
+
+                <!-- Payment Method Selector -->
+                <label class="form-label mb-1.5 block">Payment Mode</label>
+                <div class="payment-method-selector">
+                  <button type="button" class="payment-method-btn active" data-method="Cash">
+                    <i class="fa-solid fa-money-bill-wave text-emerald-600"></i>
+                    <span>Cash</span>
+                  </button>
+                  <button type="button" class="payment-method-btn" data-method="UPI">
+                    <i class="fa-solid fa-qrcode text-sky-600"></i>
+                    <span>UPI / QR</span>
+                  </button>
+                  <button type="button" class="payment-method-btn" data-method="Card">
+                    <i class="fa-solid fa-credit-card text-purple-600"></i>
+                    <span>Debit/Card</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Action Checkout Button -->
+              <div class="pt-3 border-t border-slate-200">
+                <button type="button" id="pos-checkout-btn" class="btn btn-success w-full py-3 text-base font-bold shadow-lg" disabled>
+                  <i class="fa-solid fa-receipt me-1"></i> Complete & Print Invoice
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Invoice Print Modal -->
+  <div class="modal-backdrop" id="invoice-modal">
+    <div class="modal-box modal-lg">
+      <div class="modal-header">
+        <h3>Generated Tax Invoice</h3>
+        <button class="modal-close-btn" onclick="MedCareUI.closeModal('invoice-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" id="invoice-render-box"></div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="MedCareUI.closeModal('invoice-modal')">
+          <i class="fa-solid fa-check"></i> Done (Close)
+        </button>
+        <button type="button" class="btn btn-primary" onclick="printInvoice()">
+          <i class="fa-solid fa-print"></i> Print Invoice
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/billing.js"></script>
+</body>
+</html>

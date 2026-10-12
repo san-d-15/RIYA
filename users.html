@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management & RBAC - MedCare Pharmacy</title>
+  <meta name="description" content="Manage pharmacy system users and role-based access permissions.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="app-sidebar"></aside>
+
+    <div class="main-wrapper">
+      <header class="top-header" id="app-header"></header>
+
+      <main class="content-body">
+        
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1>User & Role-Based Access Control (RBAC)</h1>
+            <p id="user-count-display">Manage pharmacist staff, cashier permissions, and administrator accounts.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openAddUserModal()">
+              <i class="fa-solid fa-user-plus"></i> Add New User
+            </button>
+          </div>
+        </div>
+
+        <!-- Role Legend Info Card -->
+        <div class="card p-4 mb-6 bg-slate-50 border border-slate-200">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="badge badge-success font-bold mb-1">Admin</span>
+              <p class="text-slate-600">Full privileges: Store configuration, user management, financial reports, catalog deletion.</p>
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="badge badge-primary font-bold mb-1">Pharmacist</span>
+              <p class="text-slate-600">Clinical operations: Dispensing, stock restock, purchases, expiry quarantine, medicine catalog.</p>
+            </div>
+            <div class="p-3 bg-white border border-slate-200 rounded-lg">
+              <span class="badge badge-neutral font-bold mb-1">Cashier</span>
+              <p class="text-slate-600">Front counter: Point of Sale billing, customer lookups, receipt reprint, shift closing.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>User Profile</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Assigned Role</th>
+                  <th>Account Status</th>
+                  <th>Registered On</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody">
+                <!-- Dynamically populated by js/users.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Add / Edit User Modal -->
+  <div class="modal-backdrop" id="user-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modal-user-title">Add New User</h3>
+        <button class="modal-close-btn" onclick="MedCareUI.closeModal('user-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="user-form">
+        <div class="modal-body space-y-4">
+          <div class="form-group">
+            <label class="form-label" for="user-name">Full Name <span class="required">*</span></label>
+            <input type="text" id="user-name" class="form-control" placeholder="e.g. Dr. Arvind Mehta" required>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="user-username">Username <span class="required">*</span></label>
+              <input type="text" id="user-username" class="form-control font-mono" placeholder="arvindm" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="user-email">Email Address <span class="required">*</span></label>
+              <input type="email" id="user-email" class="form-control" placeholder="arvind@medcare.com" required>
+            </div>
+          </div>
+
+          <div class="form-group" id="user-password-group">
+            <label class="form-label" for="user-password">Initial Password <span class="required">*</span></label>
+            <input type="password" id="user-password" class="form-control font-mono" placeholder="Minimum 6 characters" required>
+            <span class="text-xs text-slate-400">Assign a secure initial password for this account</span>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="user-role">Assigned Role <span class="required">*</span></label>
+              <select id="user-role" class="form-control" required>
+                <option value="Pharmacist">Pharmacist</option>
+                <option value="Cashier">Cashier</option>
+                <option value="Admin">Administrator</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="user-status">Account Status</label>
+              <select id="user-status" class="form-control">
+                <option value="Active">Active</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="user-phone">Contact Mobile</label>
+            <input type="text" id="user-phone" class="form-control font-mono" placeholder="+91 98201 12345">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="MedCareUI.closeModal('user-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-check"></i> Save User
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/users.js"></script>
+</body>
+</html>

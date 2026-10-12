@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - MedCare Pharmacy</title>
+  <meta name="description" content="Secure clinical login portal for MedCare Pharmacy Medical Store Management System.">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body class="bg-slate-950 min-h-screen flex items-center justify-center p-4 sm:p-6 relative overflow-x-hidden selection:bg-teal-500 selection:text-white">
+
+  <!-- Ambient Animated Background Layer -->
+  <div class="medical-ambient-bg" aria-hidden="true">
+    <!-- Soft Gradient Blobs -->
+    <div class="bg-blob bg-blob-blue"></div>
+    <div class="bg-blob bg-blob-teal"></div>
+    <div class="bg-blob bg-blob-sky"></div>
+
+    <!-- Small Floating Circles -->
+    <div class="ambient-element ambient-circle-1"></div>
+    <div class="ambient-element ambient-circle-2"></div>
+    <div class="ambient-element ambient-circle-3"></div>
+
+    <!-- Floating Plus (+) Medical Symbols -->
+    <div class="ambient-element ambient-cross-1">
+      <i class="fa-solid fa-plus"></i>
+    </div>
+    <div class="ambient-element teal ambient-cross-2">
+      <i class="fa-solid fa-plus"></i>
+    </div>
+    <div class="ambient-element ambient-cross-3">
+      <i class="fa-solid fa-plus"></i>
+    </div>
+
+    <!-- Subtle Capsule / Pill Outlines -->
+    <div class="ambient-element ambient-pill-1"></div>
+    <div class="ambient-element teal ambient-pill-2"></div>
+  </div>
+
+  <!-- Main Container: Dual-Panel Split Presentation -->
+  <div class="w-full max-w-5xl rounded-3xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative z-10 shadow-2xl border border-white/10">
+    
+    <!-- LEFT PANEL: Modern Medical Illustration & Abstract Medical Architecture Pattern (5 cols) -->
+    <div class="hidden lg:flex lg:col-span-5 login-visual-panel flex-col justify-between p-10 text-white relative">
+      <!-- Geometric Dot Grid Pattern -->
+      <div class="login-pattern-grid"></div>
+
+      <!-- Header Lockup -->
+      <div class="relative z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs text-teal-300 font-semibold tracking-wide">
+          <i class="fa-solid fa-circle-check text-teal-400"></i>
+          <span>Clinical Pharmacy ERP v2.4</span>
+        </div>
+      </div>
+
+      <!-- Central Medical Graphic / Abstract Visual Composition -->
+      <div class="relative z-10 my-auto py-8">
+        <!-- Floating Visual Badge Container -->
+        <div class="relative mx-auto w-48 h-48 flex items-center justify-center">
+          <div class="absolute inset-0 rounded-full bg-teal-500/10 filter blur-xl animate-pulse"></div>
+          
+          <!-- Outer Concentric Rotating Ring -->
+          <svg class="w-full h-full text-sky-400/30" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 4"/>
+          </svg>
+
+          <!-- Core Shield / Cross Centerpiece -->
+          <div class="w-28 h-28 rounded-2xl bg-gradient-to-br from-blue-600/90 to-teal-600/90 backdrop-blur-lg border border-white/25 shadow-xl flex items-center justify-center relative">
+            <div class="text-white text-5xl">
+              <i class="fa-solid fa-notes-medical"></i>
+            </div>
+            <!-- Floating Mini Badge -->
+            <div class="absolute -top-2 -right-2 w-9 h-9 rounded-full bg-white text-teal-600 shadow-md flex items-center justify-center font-bold text-xs border border-teal-100">
+              <i class="fa-solid fa-shield-heart text-sm"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 text-center space-y-2">
+          <h2 class="text-2xl font-extrabold text-white tracking-tight">Smart Pharmacy Intelligence</h2>
+          <p class="text-xs text-slate-300 leading-relaxed max-w-xs mx-auto">
+            Real-time stock validation, automated GST invoicing, and proactive batch expiry quarantine.
+          </p>
+        </div>
+      </div>
+
+      <!-- Footer Clinical Trust Marks -->
+      <div class="relative z-10 pt-6 border-t border-white/10 space-y-2.5 text-xs text-slate-300">
+        <div class="flex items-center gap-2.5">
+          <div class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-300 flex items-center justify-center text-[10px]">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <span>ACID-Compliant MySQL & PreparedStatement JDBC</span>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <div class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-300 flex items-center justify-center text-[10px]">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <span>Automatic POS Stock Synchronization</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: Glassmorphism Login Card (7 cols) -->
+    <div class="lg:col-span-7 login-card-glass p-8 sm:p-12 flex flex-col justify-center">
+      
+      <!-- Top Center: The Animated MedCare Logo -->
+      <div class="text-center mb-8">
+        <div class="inline-block">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 72" width="240" height="62" class="animated-logo-root mx-auto" role="img" aria-label="MedCare Pharmacy Animated Logo">
+            <defs>
+              <linearGradient id="loginBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#1E88E5"/>
+                <stop offset="100%" stop-color="#1565C0"/>
+              </linearGradient>
+              <linearGradient id="loginTealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00C49F"/>
+                <stop offset="100%" stop-color="#00A896"/>
+              </linearGradient>
+              <linearGradient id="loginCapWhite" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFFFFF"/>
+                <stop offset="100%" stop-color="#F1F5F9"/>
+              </linearGradient>
+              <filter id="loginGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur"/>
+                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+              </filter>
+            </defs>
+
+            <!-- ICON EMBLEM GROUP -->
+            <g class="logo-symbol-group" transform="translate(4, 4)">
+              <!-- Aura Glow Ring -->
+              <circle class="logo-glow-aura" cx="32" cy="32" r="30" fill="none" stroke="url(#loginTealGrad)" stroke-width="1.5" stroke-dasharray="4 2"/>
+              <!-- Halo Soft Fill -->
+              <circle cx="32" cy="32" r="28" fill="#F0FDF4" opacity="0.85"/>
+
+              <!-- 1. Medical Cross (Scale-in Animation) -->
+              <g class="logo-cross">
+                <rect x="26" y="12" width="12" height="40" rx="6" fill="url(#loginBlueGrad)" filter="url(#loginGlow)"/>
+                <rect x="12" y="26" width="40" height="12" rx="6" fill="url(#loginBlueGrad)"/>
+              </g>
+
+              <!-- 2. Integrated Capsule/Pill (Slide-in Animation) -->
+              <g class="logo-capsule" transform="rotate(-32 32 32)">
+                <rect x="18" y="24" width="28" height="16" rx="8" fill="#FFFFFF" opacity="0.95" stroke="#E2E8F0" stroke-width="0.5"/>
+                <!-- Teal Active Half -->
+                <path d="M 26,24 L 38,24 C 42.4,24 46,27.6 46,32 C 46,36.4 42.4,40 38,40 L 26,40 Z" fill="url(#loginTealGrad)"/>
+                <!-- White Medicine Half -->
+                <path d="M 26,24 L 26,40 C 21.6,40 18,36.4 18,32 C 18,27.6 21.6,24 26,24 Z" fill="url(#loginCapWhite)"/>
+                <line x1="26" y1="24" x2="26" y2="40" stroke="#CBD5E1" stroke-width="0.8"/>
+                <rect x="21" y="26" width="22" height="2" rx="1" fill="#FFFFFF" opacity="0.8"/>
+              </g>
+
+              <!-- 3. Health Heartline Vitality Pulse -->
+              <path class="logo-heartline" d="M 20 32 L 27 32 L 30 25 L 34 39 L 37 30 L 40 32 L 44 32" 
+                    fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="32" cy="32" r="2.2" fill="#FFFFFF"/>
+            </g>
+
+            <!-- TYPOGRAPHY GROUP -->
+            <g class="logo-typography-group" transform="translate(76, 0)">
+              <text x="0" y="42" class="logo-brand-name" 
+                    font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" 
+                    font-size="30" 
+                    font-weight="800" 
+                    letter-spacing="-0.5">
+                <tspan fill="#1976D2">Med</tspan><tspan fill="#00A896">Care</tspan>
+              </text>
+              <g transform="translate(1, 58)" class="logo-subtitle-group">
+                <circle cx="3" cy="-3.5" r="2" fill="#00A896"/>
+                <text x="10" y="0" class="logo-brand-sub" 
+                      font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" 
+                      font-size="10" 
+                      font-weight="700" 
+                      letter-spacing="4.5" 
+                      fill="#64748B">PHARMACY</text>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <div class="mt-4">
+          <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Welcome Back</h1>
+          <p class="text-slate-500 text-xs sm:text-sm mt-1">Sign in to continue to MedCare Pharmacy</p>
+        </div>
+      </div>
+
+      <!-- Error Alert Message -->
+      <div id="login-error-alert" class="hidden mb-5 p-3.5 bg-red-50 border border-red-200/80 rounded-xl text-xs text-red-700 font-medium"></div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="space-y-4" novalidate>
+        
+        <!-- Username / Email Field -->
+        <div class="form-group">
+          <label class="form-label" for="login-identifier">
+            Username or Work Email <span class="required">*</span>
+          </label>
+          <div class="relative">
+            <input type="text" id="login-identifier" class="form-control pl-10 input-medcare" placeholder="admin@medcare.com" required autocomplete="username">
+            <i class="fa-regular fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+          </div>
+        </div>
+
+        <!-- Password Field with Show/Hide Toggle -->
+        <div class="form-group">
+          <div class="flex items-center justify-between mb-1">
+            <label class="form-label mb-0" for="login-password">
+              Password <span class="required">*</span>
+            </label>
+            <a href="#" onclick="alert('Please contact the system administrator to reset your password.'); return false;" class="text-xs text-primary-600 font-semibold hover:text-primary-700 transition">Forgot Password?</a>
+          </div>
+          <div class="relative">
+            <input type="password" id="login-password" class="form-control pl-10 pr-10 input-medcare font-mono" placeholder="••••••••" required autocomplete="current-password">
+            <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <button type="button" id="toggle-password-btn" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition text-sm" aria-label="Toggle password visibility">
+              <i class="fa-regular fa-eye" id="password-eye-icon"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember Me Checkbox -->
+        <div class="flex items-center justify-between pt-1">
+          <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-600 select-none">
+            <input type="checkbox" id="remember-me" checked class="rounded border-slate-300 text-teal-600 focus:ring-teal-500">
+            <span>Remember this device for 30 days</span>
+          </label>
+        </div>
+
+        <!-- Modern Blue-to-Teal Button with Loading State -->
+        <div class="pt-2">
+          <button type="submit" id="btn-login-submit" class="btn-login-gradient w-full py-3 text-sm">
+            <span id="btn-login-text">
+              <i class="fa-solid fa-arrow-right-to-bracket me-1.5"></i> Sign In to MedCare
+            </span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Quick 1-Click Demo Login Roles -->
+      <div class="mt-8 pt-6 border-t border-slate-200/80">
+        <p class="text-[11px] font-bold text-slate-400 mb-2.5 uppercase tracking-wider text-center">1-Click Quick Demo Sign-In</p>
+        <div class="grid grid-cols-3 gap-2.5">
+          <button type="button" class="btn btn-outline btn-sm py-2 px-1 flex flex-col items-center gap-0.5 border-slate-200 hover:border-blue-500 hover:bg-blue-50/60 rounded-xl transition" onclick="quickFillRole('admin')">
+            <span class="font-bold text-slate-800 text-xs">Admin</span>
+            <span class="text-[10px] text-slate-400">Full System</span>
+          </button>
+          <button type="button" class="btn btn-outline btn-sm py-2 px-1 flex flex-col items-center gap-0.5 border-slate-200 hover:border-teal-500 hover:bg-teal-50/60 rounded-xl transition" onclick="quickFillRole('pharmacist')">
+            <span class="font-bold text-slate-800 text-xs">Pharmacist</span>
+            <span class="text-[10px] text-slate-400">Stock & POS</span>
+          </button>
+          <button type="button" class="btn btn-outline btn-sm py-2 px-1 flex flex-col items-center gap-0.5 border-slate-200 hover:border-sky-500 hover:bg-sky-50/60 rounded-xl transition" onclick="quickFillRole('cashier')">
+            <span class="font-bold text-slate-800 text-xs">Cashier</span>
+            <span class="text-[10px] text-slate-400">POS Counter</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/login.js"></script>
+</body>
+</html>

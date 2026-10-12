@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medicine Management - MedCare Pharmacy</title>
+  <meta name="description" content="Manage medicine catalog, batches, dosages, purchase and selling rates, and stock thresholds.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="app-sidebar"></aside>
+
+    <div class="main-wrapper">
+      <header class="top-header" id="app-header"></header>
+
+      <main class="content-body">
+        
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1>Medicine Catalog Management</h1>
+            <p id="medicine-count-display">Browse and maintain store pharmaceutical items, batch lots, and pricing.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openAddMedicineModal()">
+              <i class="fa-solid fa-plus"></i> Add New Medicine
+            </button>
+            <a href="inventory.html" class="btn btn-outline">
+              <i class="fa-solid fa-boxes-stacked"></i> View Inventory Status
+            </a>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="card mb-6">
+          <div class="p-4">
+            <div class="filter-bar">
+              <div class="search-input-group">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="medicine-search-input" placeholder="Search by name, generic salt, batch number...">
+              </div>
+
+              <div class="filter-selects">
+                <select id="filter-category" class="select-control">
+                  <option value="">All Categories</option>
+                </select>
+
+                <select id="filter-manufacturer" class="select-control">
+                  <option value="">All Manufacturers</option>
+                </select>
+
+                <select id="filter-stock" class="select-control">
+                  <option value="">All Stock Levels</option>
+                  <option value="in_stock">In Stock (Healthy)</option>
+                  <option value="low_stock">Low Stock (Reorder Needed)</option>
+                  <option value="out_of_stock">Out of Stock (0 units)</option>
+                  <option value="expired">Expired Batches</option>
+                </select>
+
+                <button class="btn btn-outline btn-sm" id="reset-filters-btn" title="Reset all filters">
+                  <i class="fa-solid fa-rotate-left"></i> Reset
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Medicines Data Table -->
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Medicine & Generic Salt</th>
+                  <th>Category</th>
+                  <th>Batch #</th>
+                  <th>Manufacturer</th>
+                  <th class="text-right">Buy Price</th>
+                  <th class="text-right">Sell Price</th>
+                  <th class="text-center">Stock / Min</th>
+                  <th>Expiry Date</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="medicines-tbody">
+                <!-- Dynamically populated by js/medicines.js -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Bar -->
+          <div class="pagination-container" id="pagination-wrapper"></div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Add / Edit Medicine Modal -->
+  <div class="modal-backdrop" id="medicine-modal">
+    <div class="modal-box modal-lg">
+      <div class="modal-header">
+        <h3 id="modal-medicine-title">Add New Medicine</h3>
+        <button class="modal-close-btn" onclick="MedCareUI.closeModal('medicine-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="medicine-form">
+        <input type="hidden" id="med-id-field">
+        <div class="modal-body space-y-4">
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="med-name">Medicine Brand Name <span class="required">*</span></label>
+              <input type="text" id="med-name" class="form-control" placeholder="e.g. Dolo 650mg Tablet" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="med-generic">Generic Name / Active Salt</label>
+              <input type="text" id="med-generic" class="form-control" placeholder="e.g. Paracetamol (Acetaminophen)">
+            </div>
+          </div>
+
+          <div class="form-grid grid-3">
+            <div class="form-group">
+              <label class="form-label" for="med-category">Category <span class="required">*</span></label>
+              <select id="med-category" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="med-manufacturer">Manufacturer <span class="required">*</span></label>
+              <input type="text" id="med-manufacturer" class="form-control" placeholder="e.g. Micro Labs Ltd." required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="med-batch">Batch Number <span class="required">*</span></label>
+              <input type="text" id="med-batch" class="form-control font-mono uppercase" placeholder="e.g. BATCH-9921" required>
+            </div>
+          </div>
+
+          <div class="form-grid grid-3">
+            <div class="form-group">
+              <label class="form-label" for="med-purchase-price">Purchase Price (₹) <span class="required">*</span></label>
+              <input type="number" step="0.01" min="0" id="med-purchase-price" class="form-control font-mono" placeholder="24.50" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="med-selling-price">Selling Price / MRP (₹) <span class="required">*</span></label>
+              <input type="number" step="0.01" min="0" id="med-selling-price" class="form-control font-mono font-bold" placeholder="32.00" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="med-quantity">Initial Stock Quantity <span class="required">*</span></label>
+              <input type="number" min="0" id="med-quantity" class="form-control font-mono" placeholder="100" required>
+            </div>
+          </div>
+
+          <div class="form-grid grid-3">
+            <div class="form-group">
+              <label class="form-label" for="med-min-stock">Min Stock Reorder Level <span class="required">*</span></label>
+              <input type="number" min="1" id="med-min-stock" class="form-control font-mono" placeholder="20" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="med-mfg-date">Mfg Date</label>
+              <input type="date" id="med-mfg-date" class="form-control font-mono">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="med-expiry-date">Expiry Date <span class="required">*</span></label>
+              <input type="date" id="med-expiry-date" class="form-control font-mono font-bold" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="med-supplier">Authorized Supplier</label>
+            <select id="med-supplier" class="form-control"></select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="med-description">Description & Dosage Guidelines</label>
+            <textarea id="med-description" rows="2" class="form-control" placeholder="Clinical notes, storage condition, contraindications..."></textarea>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="MedCareUI.closeModal('medicine-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-floppy-disk"></i> Save Medicine
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/medicines.js"></script>
+</body>
+</html>

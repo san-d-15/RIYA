@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supplier Management - MedCare Pharmacy</title>
+  <meta name="description" content="Maintain pharmaceutical distributors, company contacts, GST numbers, and medicine logistics.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="app-sidebar"></aside>
+
+    <div class="main-wrapper">
+      <header class="top-header" id="app-header"></header>
+
+      <main class="content-body">
+        
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1>Pharmaceutical Suppliers & Distributors</h1>
+            <p id="supplier-count-display">Manage authorized vendors, procurement channels, and logistics partners.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openAddSupplierModal()">
+              <i class="fa-solid fa-plus"></i> Add New Supplier
+            </button>
+            <a href="purchases.html" class="btn btn-outline">
+              <i class="fa-solid fa-truck-ramp-box"></i> View Purchases
+            </a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="p-4 border-b border-slate-200">
+            <div class="search-input-group max-w-sm">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="supplier-search-input" placeholder="Search supplier name, company, GST, phone...">
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Vendor Code</th>
+                  <th>Supplier / Company</th>
+                  <th>Contact Info</th>
+                  <th>GST/VAT #</th>
+                  <th>Medicines Supplied</th>
+                  <th>Office Address</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="suppliers-tbody">
+                <!-- Dynamically populated by js/suppliers.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Add / Edit Supplier Modal -->
+  <div class="modal-backdrop" id="supplier-modal">
+    <div class="modal-box modal-lg">
+      <div class="modal-header">
+        <h3 id="modal-sup-title">Add New Supplier</h3>
+        <button class="modal-close-btn" onclick="MedCareUI.closeModal('supplier-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="supplier-form">
+        <div class="modal-body space-y-4">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="sup-name">Supplier Contact Name <span class="required">*</span></label>
+              <input type="text" id="sup-name" class="form-control" placeholder="e.g. Sun Pharma Distributors" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="sup-company">Company Legal Name</label>
+              <input type="text" id="sup-company" class="form-control" placeholder="e.g. Sun Pharmaceutical Industries Ltd.">
+            </div>
+          </div>
+
+          <div class="form-grid grid-3">
+            <div class="form-group">
+              <label class="form-label" for="sup-phone">Phone Number <span class="required">*</span></label>
+              <input type="text" id="sup-phone" class="form-control font-mono" placeholder="+91 22 4324 0000" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="sup-email">Email Address <span class="required">*</span></label>
+              <input type="email" id="sup-email" class="form-control" placeholder="orders@sunpharma-supply.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="sup-gst">GST / Tax Identification</label>
+              <input type="text" id="sup-gst" class="form-control font-mono uppercase" placeholder="27AAACS1123P1Z1">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="sup-medicines">Medicines Supplied</label>
+            <input type="text" id="sup-medicines" class="form-control" placeholder="e.g. Metformin, Azithromycin, Pantoprazole">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="sup-address">Warehouse / Registered Address</label>
+            <textarea id="sup-address" rows="2" class="form-control" placeholder="Street, Industrial Area, City, State, PIN"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="MedCareUI.closeModal('supplier-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-check"></i> Save Supplier
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/suppliers.js"></script>
+</body>
+</html>

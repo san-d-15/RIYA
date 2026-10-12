@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports & Financial Analytics - MedCare Pharmacy</title>
+  <meta name="description" content="Generate daily sales, purchases, stock valuation, and tax accounting reports.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="app-sidebar"></aside>
+
+    <div class="main-wrapper">
+      <header class="top-header" id="app-header"></header>
+
+      <main class="content-body">
+        
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1>Reports & Financial Statements</h1>
+            <p>Generate auditable pharmacy statements, tax summaries, stock valuation, and supplier turnover.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline" id="btn-print-report">
+              <i class="fa-solid fa-print"></i> Print Statement
+            </button>
+            <button class="btn btn-primary" id="btn-export-csv">
+              <i class="fa-solid fa-file-csv"></i> Export CSV Data
+            </button>
+          </div>
+        </div>
+
+        <!-- Report Generation Control Panel -->
+        <div class="card mb-6">
+          <div class="p-4 bg-slate-50 border-b border-slate-200">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+              
+              <div class="form-group">
+                <label class="form-label" for="report-type-select">Report Category</label>
+                <select id="report-type-select" class="select-control w-full">
+                  <option value="sales_daily">Daily Sales & Cash Register</option>
+                  <option value="sales_monthly">Monthly Sales Summary</option>
+                  <option value="purchases">Stock Purchases & Vendor Inflow</option>
+                  <option value="stock">Current Inventory Valuation (MRP)</option>
+                  <option value="low_stock">Low Stock & Reorder Report</option>
+                  <option value="expired">Expired Stock & Quarantine Log</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="report-start-date">From Date</label>
+                <input type="date" id="report-start-date" class="form-control font-mono">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="report-end-date">To Date</label>
+                <input type="date" id="report-end-date" class="form-control font-mono">
+              </div>
+
+              <div>
+                <button type="button" class="btn btn-primary w-full" id="btn-generate-report">
+                  <i class="fa-solid fa-filter"></i> Run Report
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Report Metric Summary Cards -->
+          <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4" id="report-metric-summary">
+            <!-- Dynamically populated by js/reports.js -->
+          </div>
+        </div>
+
+        <!-- Rendered Report Table Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 id="report-title-display">Daily Sales & Revenue Report</h2>
+            <span class="text-xs text-slate-400 font-mono">Status: Verified</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead id="report-table-head">
+                <!-- Dynamically populated by js/reports.js -->
+              </thead>
+              <tbody id="report-table-body">
+                <!-- Dynamically populated by js/reports.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/reports.js"></script>
+</body>
+</html>

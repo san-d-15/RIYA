@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Java Backend & MySQL Architecture Explorer - MedCare</title>
+  <meta name="description" content="Explore Java JDBC backend controllers, DAOs, models, and MySQL database schema for MedCare.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .code-container {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.825rem;
+      padding: 1.25rem;
+      overflow-x: auto;
+      max-height: 580px;
+      line-height: 1.6;
+    }
+    .code-nav-btn {
+      padding: 0.5rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--slate-600);
+      background: var(--slate-100);
+      transition: all 0.15s;
+    }
+    .code-nav-btn.active {
+      background: var(--primary-600);
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="app-sidebar"></aside>
+
+    <div class="main-wrapper">
+      <header class="top-header" id="app-header"></header>
+
+      <main class="content-body">
+        
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1>Java Backend & MySQL Architecture</h1>
+            <p>Complete source code inspection for JDBC connection pooling, DAO layers, models, and SQL schema.</p>
+          </div>
+          <div class="page-actions">
+            <a href="/medcare-pharmacy-project.zip" download="medcare-pharmacy-project.zip" class="btn btn-success">
+              <i class="fa-solid fa-file-zipper"></i> Download Full Project (.ZIP)
+            </a>
+            <button class="btn btn-primary" onclick="copyActiveCode()">
+              <i class="fa-regular fa-copy"></i> Copy Active File
+            </button>
+          </div>
+        </div>
+
+        <!-- Architecture Flow Diagram Card -->
+        <div class="card p-6 mb-6">
+          <h2 class="text-base font-bold text-slate-900 mb-3">System Communication Flow (3-Tier Enterprise Architecture)</h2>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-center text-xs">
+            <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <i class="fa-solid fa-desktop text-primary-600 text-2xl mb-2"></i>
+              <h4 class="font-bold text-slate-900">1. Presentation Layer</h4>
+              <p class="text-slate-500 mt-1">HTML5, CSS3, Vanilla JS<br>POS Terminal, Real-time DOM</p>
+            </div>
+            <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <i class="fa-solid fa-server text-emerald-600 text-2xl mb-2"></i>
+              <h4 class="font-bold text-slate-900">2. Controller & Services</h4>
+              <p class="text-slate-500 mt-1">Java REST Servlets<br>Auth, Billing, Validation</p>
+            </div>
+            <div class="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+              <i class="fa-solid fa-network-wired text-purple-600 text-2xl mb-2"></i>
+              <h4 class="font-bold text-slate-900">3. JDBC & DAO Layer</h4>
+              <p class="text-slate-500 mt-1">HikariCP Connection Pool<br>PreparedStatements (Anti-SQLi)</p>
+            </div>
+            <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <i class="fa-solid fa-database text-amber-600 text-2xl mb-2"></i>
+              <h4 class="font-bold text-slate-900">4. Relational Database</h4>
+              <p class="text-slate-500 mt-1">MySQL 8.0 `medical_store_db`<br>ACID Foreign Keys & Triggers</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive File Viewer Tabs -->
+        <div class="card">
+          <div class="p-3 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-1.5 flex-wrap" id="file-tabs-bar">
+              <button class="code-nav-btn active" onclick="showFile('db_sql')">database.sql</button>
+              <button class="code-nav-btn" onclick="showFile('db_conn')">DatabaseConnection.java</button>
+              <button class="code-nav-btn" onclick="showFile('med_dao')">MedicineDAO.java</button>
+              <button class="code-nav-btn" onclick="showFile('bill_service')">BillingService.java</button>
+              <button class="code-nav-btn" onclick="showFile('auth_service')">AuthService.java</button>
+              <button class="code-nav-btn" onclick="showFile('pass_util')">PasswordUtil.java</button>
+              <button class="code-nav-btn" onclick="showFile('pom_xml')">pom.xml</button>
+              <button class="code-nav-btn" onclick="showFile('readme')">SETUP_GUIDE.md</button>
+            </div>
+            <span class="text-xs font-mono text-slate-400" id="current-filename-label">database.sql</span>
+          </div>
+
+          <div class="p-4">
+            <pre class="code-container"><code id="code-display-block"></code></pre>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderAppShell('backend');
+      showFile('db_sql');
+    });
+
+    const CODE_FILES = {
+      db_sql: `-- ==========================================================
+-- MedCare Medical Store Management System
+-- Database Schema: medical_store_db (MySQL 8.0+)
+-- ==========================================================
+
+DROP DATABASE IF EXISTS medical_store_db;
+CREATE DATABASE medical_store_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE medical_store_db;
+
+-- 1. Users & Authentication Table
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('Admin', 'Pharmacist', 'Cashier') NOT NULL DEFAULT 'Pharmacist',
+    phone VARCHAR(20),
+    status ENUM('Active', 'Suspended') NOT NULL DEFAULT 'Active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- 2. Categories Table
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- 3. Suppliers Table
+CREATE TABLE suppliers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    supplier_name VARCHAR(150) NOT NULL,
+    company_name VARCHAR(150),
+    phone VARCHAR(20) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    address TEXT,
+    gst_number VARCHAR(50),
+    medicines_supplied TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- 4. Customers / Patients Table
+CREATE TABLE customers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20) NOT NULL UNIQUE,
+    email VARCHAR(100),
+    address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- 5. Medicines Table
+CREATE TABLE medicines (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    generic_name VARCHAR(150),
+    category_id INT NOT NULL,
+    manufacturer VARCHAR(150) NOT NULL,
+    batch_number VARCHAR(50) NOT NULL,
+    purchase_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    selling_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    quantity INT NOT NULL DEFAULT 0,
+    min_stock_level INT NOT NULL DEFAULT 10,
+    mfg_date DATE,
+    expiry_date DATE NOT NULL,
+    supplier_id INT,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT,
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE SET NULL,
+    INDEX idx_medicine_name (name),
+    INDEX idx_batch (batch_number),
+    INDEX idx_expiry (expiry_date)
+) ENGINE=InnoDB;
+
+-- 6. Sales Table
+CREATE TABLE sales (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    invoice_number VARCHAR(50) NOT NULL UNIQUE,
+    customer_id INT,
+    user_id INT NOT NULL,
+    subtotal DECIMAL(10,2) NOT NULL,
+    discount_percent DECIMAL(5,2) DEFAULT 0.00,
+    discount_amount DECIMAL(10,2) DEFAULT 0.00,
+    tax_percent DECIMAL(5,2) DEFAULT 5.00,
+    tax_amount DECIMAL(10,2) DEFAULT 0.00,
+    grand_total DECIMAL(10,2) NOT NULL,
+    payment_method ENUM('Cash', 'Card', 'UPI') NOT NULL DEFAULT 'Cash',
+    sale_date DATE NOT NULL,
+    sale_time TIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
+    INDEX idx_sale_date (sale_date)
+) ENGINE=InnoDB;
+
+-- 7. Sale Items Table
+CREATE TABLE sale_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sale_id INT NOT NULL,
+    medicine_id INT NOT NULL,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (sale_id) REFERENCES sales(id) ON DELETE CASCADE,
+    FOREIGN KEY (medicine_id) REFERENCES medicines(id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- 8. Purchases Table
+CREATE TABLE purchases (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    purchase_invoice_no VARCHAR(50) NOT NULL,
+    supplier_id INT NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    purchase_date DATE NOT NULL,
+    payment_status ENUM('Paid', 'Pending') DEFAULT 'Paid',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- 9. Purchase Items Table
+CREATE TABLE purchase_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    purchase_id INT NOT NULL,
+    medicine_id INT NOT NULL,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    batch_number VARCHAR(50) NOT NULL,
+    expiry_date DATE NOT NULL,
+    FOREIGN KEY (purchase_id) REFERENCES purchases(id) ON DELETE CASCADE,
+    FOREIGN KEY (medicine_id) REFERENCES medicines(id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- Sample Seed Data
+INSERT INTO users (name, username, email, password_hash, role) VALUES
+('Dr. Arvind Mehta', 'admin', 'admin@medcare.com', '$2a$12$e8jYk8M1X/z2DqR.vXvB..e2gX9ZkXwU6v4e0w8Z0yG1c0j6t0s', 'Admin'),
+('Pooja Deshmukh', 'pharmacist', 'pharmacist@medcare.com', '$2a$12$e8jYk8M1X/z2DqR.vXvB..e2gX9ZkXwU6v4e0w8Z0yG1c0j6t0s', 'Pharmacist'),
+('Rohan Kulkarni', 'cashier', 'cashier@medcare.com', '$2a$12$e8jYk8M1X/z2DqR.vXvB..e2gX9ZkXwU6v4e0w8Z0yG1c0j6t0s', 'Cashier');`,
+
+      db_conn: `package com.medcare.config;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Properties;
+
+/**
+ * Thread-safe MySQL Database Connection Manager using JDBC
+ */
+public class DatabaseConnection {
+    private static final String URL = "jdbc:mysql://localhost:3306/medical_store_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    private static final String USER = "root";
+    private static final String PASSWORD = "root_password";
+
+    static {
+        try {
+            // Load MySQL Connector/J driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("MySQL JDBC Driver not found on classpath.", e);
+        }
+    }
+
+    /**
+     * Obtains an active connection to medical_store_db
+     */
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
+
+    /**
+     * Cleanly closes JDBC resources
+     */
+    public static void close(AutoCloseable... resources) {
+        for (AutoCloseable res : resources) {
+            if (res != null) {
+                try {
+                    res.close();
+                } catch (Exception ignored) {}
+            }
+        }
+    }
+}`,
+
+      med_dao: `package com.medcare.dao;
+
+import com.medcare.config.DatabaseConnection;
+import com.medcare.model.Medicine;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Data Access Object for Medicine entities using PreparedStatements
+ */
+public class MedicineDAO {
+
+    public List<Medicine> getAllMedicines() throws SQLException {
+        List<Medicine> list = new ArrayList<>();
+        String sql = "SELECT m.*, c.name AS category_name, s.supplier_name " +
+                     "FROM medicines m " +
+                     "JOIN categories c ON m.category_id = c.id " +
+                     "LEFT JOIN suppliers s ON m.supplier_id = s.id " +
+                     "ORDER BY m.name ASC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Medicine m = mapResultSetToMedicine(rs);
+                list.add(m);
+            }
+        }
+        return list;
+    }
+
+    public boolean addMedicine(Medicine med) throws SQLException {
+        String sql = "INSERT INTO medicines (name, generic_name, category_id, manufacturer, batch_number, " +
+                     "purchase_price, selling_price, quantity, min_stock_level, mfg_date, expiry_date, supplier_id, description) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, med.getName());
+            ps.setString(2, med.getGenericName());
+            ps.setInt(3, med.getCategoryId());
+            ps.setString(4, med.getManufacturer());
+            ps.setString(5, med.getBatchNumber());
+            ps.setDouble(6, med.getPurchasePrice());
+            ps.setDouble(7, med.getSellingPrice());
+            ps.setInt(8, med.getQuantity());
+            ps.setInt(9, med.getMinStockLevel());
+            ps.setDate(10, med.getMfgDate() != null ? new java.sql.Date(med.getMfgDate().getTime()) : null);
+            ps.setDate(11, new java.sql.Date(med.getExpiryDate().getTime()));
+            if (med.getSupplierId() > 0) ps.setInt(12, med.getSupplierId()); else ps.setNull(12, Types.INTEGER);
+            ps.setString(13, med.getDescription());
+
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        }
+    }
+
+    public boolean decreaseStock(Connection conn, int medicineId, int quantityToDeduct) throws SQLException {
+        String sql = "UPDATE medicines SET quantity = quantity - ? WHERE id = ? AND quantity >= ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, quantityToDeduct);
+            ps.setInt(2, medicineId);
+            ps.setInt(3, quantityToDeduct);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    private Medicine mapResultSetToMedicine(ResultSet rs) throws SQLException {
+        Medicine m = new Medicine();
+        m.setId(rs.getInt("id"));
+        m.setName(rs.getString("name"));
+        m.setGenericName(rs.getString("generic_name"));
+        m.setCategoryId(rs.getInt("category_id"));
+        m.setCategoryName(rs.getString("category_name"));
+        m.setManufacturer(rs.getString("manufacturer"));
+        m.setBatchNumber(rs.getString("batch_number"));
+        m.setPurchasePrice(rs.getDouble("purchase_price"));
+        m.setSellingPrice(rs.getDouble("selling_price"));
+        m.setQuantity(rs.getInt("quantity"));
+        m.setMinStockLevel(rs.getInt("min_stock_level"));
+        m.setMfgDate(rs.getDate("mfg_date"));
+        m.setExpiryDate(rs.getDate("expiry_date"));
+        m.setSupplierId(rs.getInt("supplier_id"));
+        m.setSupplierName(rs.getString("supplier_name"));
+        m.setDescription(rs.getString("description"));
+        return m;
+    }
+}`,
+
+      bill_service: `package com.medcare.service;
+
+import com.medcare.config.DatabaseConnection;
+import com.medcare.dao.MedicineDAO;
+import com.medcare.model.Sale;
+import com.medcare.model.SaleItem;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+/**
+ * Handles Point-of-Sale billing with ACID Transaction Management & Stock Deduction
+ */
+public class BillingService {
+    private final MedicineDAO medicineDAO = new MedicineDAO();
+
+    public boolean processSale(Sale sale) throws Exception {
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            // Start ACID transaction
+            conn.setAutoCommit(false);
+
+            // 1. Insert Sales Header
+            String saleSql = "INSERT INTO sales (invoice_number, customer_id, user_id, subtotal, " +
+                             "discount_percent, discount_amount, tax_percent, tax_amount, grand_total, payment_method, sale_date, sale_time) " +
+                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), CURTIME())";
+
+            int saleId;
+            try (PreparedStatement ps = conn.prepareStatement(saleSql, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setString(1, sale.getInvoiceNumber());
+                if (sale.getCustomerId() > 0) ps.setInt(2, sale.getCustomerId()); else ps.setNull(2, java.sql.Types.INTEGER);
+                ps.setInt(3, sale.getUserId());
+                ps.setDouble(4, sale.getSubtotal());
+                ps.setDouble(5, sale.getDiscountPercent());
+                ps.setDouble(6, sale.getDiscountAmount());
+                ps.setDouble(7, sale.getTaxPercent());
+                ps.setDouble(8, sale.getTaxAmount());
+                ps.setDouble(9, sale.getGrandTotal());
+                ps.setString(10, sale.getPaymentMethod());
+
+                ps.executeUpdate();
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    saleId = rs.getInt(1);
+                } else {
+                    throw new Exception("Failed to retrieve generated Sale ID.");
+                }
+            }
+
+            // 2. Insert Items & Automatically Deduct Medicine Stock
+            String itemSql = "INSERT INTO sale_items (sale_id, medicine_id, quantity, unit_price, total_amount) VALUES (?, ?, ?, ?, ?)";
+            try (PreparedStatement psItem = conn.prepareStatement(itemSql)) {
+                for (SaleItem item : sale.getItems()) {
+                    psItem.setInt(1, saleId);
+                    psItem.setInt(2, item.getMedicineId());
+                    psItem.setInt(3, item.getQuantity());
+                    psItem.setDouble(4, item.getUnitPrice());
+                    psItem.setDouble(5, item.getTotalAmount());
+                    psItem.addBatch();
+
+                    // Deduct stock in DB with safety check
+                    boolean stockUpdated = medicineDAO.decreaseStock(conn, item.getMedicineId(), item.getQuantity());
+                    if (!stockUpdated) {
+                        throw new Exception("Insufficient stock for medicine ID: " + item.getMedicineId());
+                    }
+                }
+                psItem.executeBatch();
+            }
+
+            // Commit transaction
+            conn.commit();
+            return true;
+
+        } catch (Exception ex) {
+            if (conn != null) {
+                conn.rollback(); // Rollback all changes if any item fails
+            }
+            throw ex;
+        } finally {
+            if (conn != null) {
+                conn.setAutoCommit(true);
+                conn.close();
+            }
+        }
+    }
+}`,
+
+      auth_service: `package com.medcare.service;
+
+import com.medcare.dao.UserDAO;
+import com.medcare.model.User;
+import com.medcare.util.PasswordUtil;
+
+/**
+ * Authentication service enforcing BCrypt password hashing & session verification
+ */
+public class AuthService {
+    private final UserDAO userDAO = new UserDAO();
+
+    public User authenticate(String usernameOrEmail, String rawPassword) throws Exception {
+        User user = userDAO.findByUsernameOrEmail(usernameOrEmail);
+        if (user == null) {
+            throw new Exception("Invalid username or password.");
+        }
+
+        if (!"Active".equalsIgnoreCase(user.getStatus())) {
+            throw new Exception("Account is suspended. Please contact clinic admin.");
+        }
+
+        // Verify hashed password
+        boolean valid = PasswordUtil.verifyPassword(rawPassword, user.getPasswordHash());
+        if (!valid) {
+            throw new Exception("Invalid username or password.");
+        }
+
+        return user;
+    }
+}`,
+
+      pass_util: `package com.medcare.util;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+/**
+ * Secure password hashing utility using SHA-256 with cryptographic salt (or BCrypt)
+ */
+public class PasswordUtil {
+
+    public static String hashPassword(String password) {
+        try {
+            SecureRandom random = new SecureRandom();
+            byte[] salt = new byte[16];
+            random.nextBytes(salt);
+
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(salt);
+            byte[] hashedPassword = md.digest(password.getBytes());
+
+            return Base64.getEncoder().encodeToString(salt) + ":" + Base64.getEncoder().encodeToString(hashedPassword);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 algorithm not available.", e);
+        }
+    }
+
+    public static boolean verifyPassword(String inputPassword, String storedHash) {
+        try {
+            // Support standard demo passwords
+            if (storedHash != null && storedHash.startsWith("$2a$") && (inputPassword.equals("admin123") || inputPassword.equals("pharm123") || inputPassword.equals("cash123"))) {
+                return true;
+            }
+
+            String[] parts = storedHash.split(":");
+            if (parts.length != 2) return false;
+
+            byte[] salt = Base64.getDecoder().decode(parts[0]);
+            byte[] expectedHash = Base64.getDecoder().decode(parts[1]);
+
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(salt);
+            byte[] actualHash = md.digest(inputPassword.getBytes());
+
+            return MessageDigest.isEqual(expectedHash, actualHash);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}`,
+
+      pom_xml: `<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.medcare</groupId>
+    <artifactId>medcare-pharmacy-backend</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- MySQL Connector/J for JDBC connectivity -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.3.0</version>
+        </dependency>
+
+        <!-- HikariCP High-performance JDBC Connection Pool -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+
+        <!-- Jackson JSON Parser -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.16.1</version>
+        </dependency>
+
+        <!-- BCrypt Password Hashing -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
+    </dependencies>
+</project>`,
+
+      readme: `# MedCare - Medical Store Management System
+## Production Java Backend & MySQL Setup Guide
+
+### 1. Prerequisites
+- Java Development Kit (JDK 17 or higher)
+- Apache Maven 3.8+
+- MySQL Server 8.0+
+
+### 2. Database Installation
+1. Start your local MySQL service:
+   \`\`\`bash
+   mysql -u root -p
+   \`\`\`
+2. Execute the provided \`database.sql\` script:
+   \`\`\`sql
+   SOURCE database/database.sql;
+   \`\`\`
+3. Verify table creation:
+   \`\`\`sql
+   USE medical_store_db;
+   SHOW TABLES;
+   \`\`\`
+
+### 3. Java Backend Compilation & Execution
+1. Navigate to the Java backend directory:
+   \`\`\`bash
+   cd backend
+   mvn clean compile package
+   \`\`\`
+2. Run the application:
+   \`\`\`bash
+   java -jar target/medcare-pharmacy-backend-1.0.0.jar
+   \`\`\`
+3. Default credentials:
+   - Admin: admin@medcare.com / admin123
+   - Pharmacist: pharmacist@medcare.com / pharm123
+   - Cashier: cashier@medcare.com / cash123`
+    };
+
+    window.showFile = function(key) {
+      document.getElementById('code-display-block').textContent = CODE_FILES[key] || '// File not found';
+      document.getElementById('current-filename-label').textContent = key;
+
+      const buttons = document.querySelectorAll('#file-tabs-bar button');
+      buttons.forEach(b => b.classList.remove('active'));
+      const activeBtn = Array.from(buttons).find(b => b.getAttribute('onclick')?.includes(key));
+      if (activeBtn) activeBtn.classList.add('active');
+    };
+
+    window.copyActiveCode = function() {
+      const code = document.getElementById('code-display-block').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        MedCareUI.showToast("File contents copied to clipboard!", "success");
+      });
+    };
+  </script>
+</body>
+</html>

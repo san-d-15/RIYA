@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Management - MedCare Pharmacy</title>
+  <meta name="description" content="Manage patient profiles, contact directory, loyalty records, and purchase history.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="app-sidebar"></aside>
+
+    <div class="main-wrapper">
+      <header class="top-header" id="app-header"></header>
+
+      <main class="content-body">
+        
+        <div class="page-header">
+          <div class="page-title-block">
+            <h1>Patient & Customer Directory</h1>
+            <p id="customer-count-display">Maintain registered customers, prescription histories, and visit records.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openAddCustomerModal()">
+              <i class="fa-solid fa-user-plus"></i> Add New Customer
+            </button>
+            <a href="sales.html" class="btn btn-outline">
+              <i class="fa-solid fa-cash-register"></i> New POS Bill
+            </a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="p-4 border-b border-slate-200">
+            <div class="search-input-group max-w-sm">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="customer-search-input" placeholder="Search customer name, phone, email...">
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Patient ID</th>
+                  <th>Customer Name & Email</th>
+                  <th>Phone Number</th>
+                  <th>Address</th>
+                  <th class="text-center">Prescriptions / Visits</th>
+                  <th class="text-right">Total Spent</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="customers-tbody">
+                <!-- Dynamically populated by js/customers.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Add / Edit Customer Modal -->
+  <div class="modal-backdrop" id="customer-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modal-cust-title">Add New Customer</h3>
+        <button class="modal-close-btn" onclick="MedCareUI.closeModal('customer-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="customer-form">
+        <div class="modal-body space-y-4">
+          <div class="form-group">
+            <label class="form-label" for="cust-name">Patient / Customer Full Name <span class="required">*</span></label>
+            <input type="text" id="cust-name" class="form-control" placeholder="e.g. Rahul Sharma" required>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="cust-phone">Phone Number <span class="required">*</span></label>
+              <input type="text" id="cust-phone" class="form-control font-mono" placeholder="+91 98210 11223" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cust-email">Email Address</label>
+              <input type="email" id="cust-email" class="form-control" placeholder="rahul.sharma@gmail.com">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cust-address">Residential / Delivery Address</label>
+            <textarea id="cust-address" rows="2" class="form-control" placeholder="House/Flat No, Apartment, Street, City"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="MedCareUI.closeModal('customer-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-check"></i> Save Customer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/customers.js"></script>
+</body>
+</html>
