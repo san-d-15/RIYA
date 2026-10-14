@@ -188,12 +188,12 @@ CREATE TABLE purchase_items (
 -- SEED SAMPLE DATA
 -- ==============================================================================
 
--- 1. Insert Initial System Users (Passwords hashed via BCrypt $2a$12)
+-- 1. Insert Initial System Users (PBKDF2-HMAC-SHA256, 210,000 iterations)
 -- Default passwords: admin123, pharm123, cash123
 INSERT INTO users (id, name, username, email, password_hash, role, phone) VALUES
-(1, 'Dr. Arvind Mehta', 'admin', 'admin@medcare.com', '$2a$12$e8jYk8M1X/z2DqR.vXvB..e2gX9ZkXwU6v4e0w8Z0yG1c0j6t0s', 'Admin', '+91 98201 12345'),
-(2, 'Pooja Deshmukh', 'pharmacist', 'pharmacist@medcare.com', '$2a$12$e8jYk8M1X/z2DqR.vXvB..e2gX9ZkXwU6v4e0w8Z0yG1c0j6t0s', 'Pharmacist', '+91 98202 23456'),
-(3, 'Rohan Kulkarni', 'cashier', 'cashier@medcare.com', '$2a$12$e8jYk8M1X/z2DqR.vXvB..e2gX9ZkXwU6v4e0w8Z0yG1c0j6t0s', 'Cashier', '+91 98203 34567');
+(1, 'Dr. Arvind Mehta', 'admin', 'admin@medcare.com', '$pbkdf2-sha256$210000$cz1eTeIT8jV2D/2vHfRaSQ==$Xe2YYIc8VmhLlZzIQmVe8dgAGJO6P/mLzp6fTJbqZ0E=', 'Admin', '+91 98201 12345'),
+(2, 'Pooja Deshmukh', 'pharmacist', 'pharmacist@medcare.com', '$pbkdf2-sha256$210000$wAPGpEHd+Ojgu6Ic2M9d6A==$jSU9NdzAxQfi3t+uQ5vXsHlhSS6BVEP4CtdeafA/6xA=', 'Pharmacist', '+91 98202 23456'),
+(3, 'Rohan Kulkarni', 'cashier', 'cashier@medcare.com', '$pbkdf2-sha256$210000$7VcVDQtEmeQ7qYkHN4eZzQ==$fbsxEW2JJr2rryuLnkqg76gJt+PxcpDDIDh6ypr0M5M=', 'Cashier', '+91 98203 34567');
 
 -- 2. Insert Categories
 INSERT INTO categories (id, name, description) VALUES

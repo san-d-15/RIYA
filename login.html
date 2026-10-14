@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - MedCare Pharmacy</title>
-  <meta name="description" content="Secure clinical login portal for MedCare Pharmacy Medical Store Management System.">
+  <meta name="description" content="Local development login for the MedCare browser demo. Authentication and role checks are not server-side production security.">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/css/style.css">
@@ -82,7 +82,7 @@
         <div class="mt-8 text-center space-y-2">
           <h2 class="text-2xl font-extrabold text-white tracking-tight">Smart Pharmacy Intelligence</h2>
           <p class="text-xs text-slate-300 leading-relaxed max-w-xs mx-auto">
-            Real-time stock validation, automated GST invoicing, and proactive batch expiry quarantine.
+            Browser-local stock validation, tax calculation, and expired-batch quarantine for this demo.
           </p>
         </div>
       </div>
@@ -93,13 +93,13 @@
           <div class="w-5 h-5 rounded-full bg-teal-500/20 text-teal-300 flex items-center justify-center text-[10px]">
             <i class="fa-solid fa-lock"></i>
           </div>
-          <span>ACID-Compliant MySQL & PreparedStatement JDBC</span>
+          <span>Browser-local demo data store (localStorage)</span>
         </div>
         <div class="flex items-center gap-2.5">
           <div class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-300 flex items-center justify-center text-[10px]">
             <i class="fa-solid fa-bolt"></i>
           </div>
-          <span>Automatic POS Stock Synchronization</span>
+          <span>Sales update browser-local stock records</span>
         </div>
       </div>
     </div>
@@ -211,7 +211,7 @@
             <label class="form-label mb-0" for="login-password">
               Password <span class="required">*</span>
             </label>
-            <a href="#" onclick="alert('Please contact the system administrator to reset your password.'); return false;" class="text-xs text-primary-600 font-semibold hover:text-primary-700 transition">Forgot Password?</a>
+            <span class="text-xs text-slate-500" title="No password recovery service is configured">Contact an administrator to reset your password</span>
           </div>
           <div class="relative">
             <input type="password" id="login-password" class="form-control pl-10 pr-10 input-medcare font-mono" placeholder="••••••••" required autocomplete="current-password">
@@ -241,7 +241,7 @@
       </form>
 
       <!-- Quick 1-Click Demo Login Roles -->
-      <div class="mt-8 pt-6 border-t border-slate-200/80">
+      <div id="demo-login-options" class="hidden mt-8 pt-6 border-t border-slate-200/80">
         <p class="text-[11px] font-bold text-slate-400 mb-2.5 uppercase tracking-wider text-center">1-Click Quick Demo Sign-In</p>
         <div class="grid grid-cols-3 gap-2.5">
           <button type="button" class="btn btn-outline btn-sm py-2 px-1 flex flex-col items-center gap-0.5 border-slate-200 hover:border-blue-500 hover:bg-blue-50/60 rounded-xl transition" onclick="quickFillRole('admin')">

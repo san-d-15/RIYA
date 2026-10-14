@@ -103,10 +103,18 @@ function saveCustomer() {
   const payload = { customerName, phone, email, address };
 
   if (editingCustomerId) {
-    MedCareDB.updateCustomer(editingCustomerId, payload);
+    const updated = MedCareDB.updateCustomer(editingCustomerId, payload);
+    if (!updated) {
+      MedCareUI.showToast(`Could not save customer "${customerName}". Browser storage may be unavailable.`, "danger");
+      return;
+    }
     MedCareUI.showToast(`Updated customer "${customerName}".`, "success");
   } else {
-    MedCareDB.addCustomer(payload);
+    const added = MedCareDB.addCustomer(payload);
+    if (!added) {
+      MedCareUI.showToast(`Could not save customer "${customerName}". Browser storage may be unavailable.`, "danger");
+      return;
+    }
     MedCareUI.showToast(`Customer "${customerName}" registered.`, "success");
   }
 
@@ -119,7 +127,10 @@ window.deleteCustomerConfirm = function(id) {
   if (!c) return;
 
   MedCareUI.confirmAction(`Delete customer record for "${c.customerName}"?`, () => {
-    MedCareDB.deleteCustomer(id);
+    if (!MedCareDB.deleteCustomer(id)) {
+      MedCareUI.showToast(`Could not delete customer "${c.customerName}". No change was saved.`, "danger");
+      return;
+    }
     MedCareUI.showToast(`Customer "${c.customerName}" deleted.`, "warning");
     loadCustomers();
   });

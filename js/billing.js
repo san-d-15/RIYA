@@ -7,6 +7,11 @@ let cart = [];
 let selectedCustomer = null;
 let currentPaymentMethod = 'Cash';
 
+function getTaxRate() {
+  const configuredTaxRate = Number(MedCareDB.getSettings().taxRate);
+  return Number.isFinite(configuredTaxRate) && configuredTaxRate >= 0 ? configuredTaxRate : 5.0;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   renderAppShell('sales');
   initBillingModule();
@@ -228,11 +233,21 @@ function renderCart() {
 function updateTotals() {
   const subtotal = cart.reduce((acc, i) => acc + i.total, 0);
   const discountInput = document.getElementById('discount-percentage');
-  const discountPercent = discountInput ? (parseFloat(discountInput.value) || 0) : 0;
-  const discountAmount = (subtotal * discountPercent) / 100;
+  const discountPercent = discountInput ? (Number(discountInput.value) || 0) : 0;
+  const discountValid = Number.isFinite(discountPercent) && discountPercent >= 0 && discountPercent <= 100;
+  const discountError = document.getElementById('discount-validation-message');
+  if (discountInput) {
+    discountInput.setCustomValidity(discountValid ? '' : 'Discount must be between 0 and 100%.');
+    discountInput.setAttribute('aria-invalid', String(!discountValid));
+  }
+  if (discountError) {
+    discountError.classList.toggle('hidden', discountValid);
+  }
+  const appliedDiscountPercent = discountValid ? discountPercent : 0;
+  const discountAmount = (subtotal * appliedDiscountPercent) / 100;
 
   const taxableAmount = Math.max(0, subtotal - discountAmount);
-  const taxRate = MedCareDB.getSettings().taxRate || 5.0;
+  const taxRate = getTaxRate();
   const taxAmount = (taxableAmount * taxRate) / 100;
   const grandTotal = taxableAmount + taxAmount;
 
@@ -243,7 +258,7 @@ function updateTotals() {
 
   const checkoutBtn = document.getElementById('pos-checkout-btn');
   if (checkoutBtn) {
-    checkoutBtn.disabled = cart.length === 0;
+    checkoutBtn.disabled = cart.length === 0 || !discountValid;
   }
 }
 
@@ -290,10 +305,16 @@ function completeSale() {
   }
 
   const subtotal = cart.reduce((acc, i) => acc + i.total, 0);
-  const discountPercent = parseFloat(document.getElementById('discount-percentage')?.value) || 0;
+  const discountInput = document.getElementById('discount-percentage');
+  const discountPercent = Number(discountInput?.value) || 0;
+  if (!Number.isFinite(discountPercent) || discountPercent < 0 || discountPercent > 100) {
+    MedCareUI.showToast('Discount must be between 0 and 100%. Sale was not completed.', 'danger');
+    discountInput?.reportValidity();
+    return;
+  }
   const discountAmount = (subtotal * discountPercent) / 100;
   const taxable = subtotal - discountAmount;
-  const taxRate = MedCareDB.getSettings().taxRate || 5.0;
+  const taxRate = getTaxRate();
   const taxAmount = (taxable * taxRate) / 100;
   const grandTotal = taxable + taxAmount;
 
@@ -319,6 +340,7 @@ function completeSale() {
 
   // Record sale in DB (Decreases medicine stock automatically)
   const savedSale = MedCareDB.recordSale(salePayload);
+  if (!savedSale) return;
 
   MedCareUI.showToast(`Sale completed! Invoice ${savedSale.invoiceNumber} generated.`, 'success');
 

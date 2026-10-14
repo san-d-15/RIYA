@@ -30,7 +30,7 @@
         <div class="page-header">
           <div class="page-title-block">
             <h1>Pharmacy Executive Dashboard</h1>
-            <p>Real-time clinical dispensing metrics, inventory valuation, and critical batch alerts.</p>
+            <p>Browser-local sales metrics, inventory valuation, and critical batch alerts.</p>
           </div>
           <div class="page-actions">
             <a href="/medcare-pharmacy-project.zip" download="medcare-pharmacy-project.zip" class="btn btn-outline text-emerald-700 border-emerald-300 bg-emerald-50/60 hover:bg-emerald-100">
@@ -52,7 +52,7 @@
           <div class="stat-card blue">
             <div class="stat-content">
               <p class="stat-label">Total Medicines</p>
-              <h3 class="stat-value" id="stat-total-medicines">12</h3>
+              <h3 class="stat-value" id="stat-total-medicines">—</h3>
               <div class="stat-trend up">
                 <i class="fa-solid fa-arrow-trend-up"></i>
                 <span>Active Pharmacy Catalog</span>
@@ -67,7 +67,7 @@
           <div class="stat-card purple">
             <div class="stat-content">
               <p class="stat-label">Total Categories</p>
-              <h3 class="stat-value" id="stat-total-categories">8</h3>
+              <h3 class="stat-value" id="stat-total-categories">—</h3>
               <div class="stat-trend neutral">
                 <span>Therapeutic classifications</span>
               </div>
@@ -81,7 +81,7 @@
           <div class="stat-card amber">
             <div class="stat-content">
               <p class="stat-label">Low Stock Medicines</p>
-              <h3 class="stat-value text-amber-600" id="stat-low-stock">3</h3>
+              <h3 class="stat-value text-amber-600" id="stat-low-stock">—</h3>
               <div class="stat-trend down">
                 <i class="fa-solid fa-circle-exclamation"></i>
                 <span>Requires Reorder</span>
@@ -96,10 +96,10 @@
           <div class="stat-card red">
             <div class="stat-content">
               <p class="stat-label">Expired Medicines</p>
-              <h3 class="stat-value text-red-600" id="stat-expired">1</h3>
+              <h3 class="stat-value text-red-600" id="stat-expired">—</h3>
               <div class="stat-trend down">
                 <i class="fa-solid fa-ban"></i>
-                <span>Quarantined Batches</span>
+                <span>Past expiry date</span>
               </div>
             </div>
             <div class="stat-icon red">
@@ -111,10 +111,9 @@
           <div class="stat-card green">
             <div class="stat-content">
               <p class="stat-label">Today's Sales</p>
-              <h3 class="stat-value text-emerald-700" id="stat-today-sales">₹45,850</h3>
+              <h3 class="stat-value text-emerald-700" id="stat-today-sales">₹0.00</h3>
               <div class="stat-trend up">
-                <i class="fa-solid fa-arrow-up"></i>
-                <span>+12.4% vs yesterday</span>
+                <span>Recorded today</span>
               </div>
             </div>
             <div class="stat-icon green">
@@ -126,9 +125,9 @@
           <div class="stat-card teal">
             <div class="stat-content">
               <p class="stat-label">Today's Purchases</p>
-              <h3 class="stat-value" id="stat-today-purchases">₹23,750</h3>
+              <h3 class="stat-value" id="stat-today-purchases">₹0.00</h3>
               <div class="stat-trend neutral">
-                <span>2 Supplier Consignments</span>
+                <span>Recorded today</span>
               </div>
             </div>
             <div class="stat-icon teal">
@@ -140,7 +139,7 @@
           <div class="stat-card sky">
             <div class="stat-content">
               <p class="stat-label">Total Customers</p>
-              <h3 class="stat-value" id="stat-total-customers">6</h3>
+              <h3 class="stat-value" id="stat-total-customers">—</h3>
               <div class="stat-trend up">
                 <i class="fa-solid fa-user-plus"></i>
                 <span>Registered Patient Profiles</span>
@@ -155,7 +154,7 @@
           <div class="stat-card indigo">
             <div class="stat-content">
               <p class="stat-label">Total Suppliers</p>
-              <h3 class="stat-value" id="stat-total-suppliers">5</h3>
+              <h3 class="stat-value" id="stat-total-suppliers">—</h3>
               <div class="stat-trend neutral">
                 <span>Authorized Distributors</span>
               </div>
@@ -184,7 +183,7 @@
           <div class="card">
             <div class="card-header">
               <h2>Stock Overview by Category</h2>
-              <span class="text-xs font-semibold text-slate-500">Distribution %</span>
+              <span class="text-xs font-semibold text-slate-500">Units currently in stock</span>
             </div>
             <div class="card-body">
               <div class="chart-container">

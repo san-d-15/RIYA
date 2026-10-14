@@ -1,40 +1,34 @@
 # MedCare Pharmacy - Medical Store Management System
 
-A complete, modern, responsive Medical Store Management System featuring POS billing with automatic stock deduction, inventory management, expiry tracking, supplier/customer management, and a complete Java JDBC MySQL backend architecture.
+A modern, responsive Medical Store Management System featuring POS billing, inventory, expiry and supplier/customer management. The browser application and Java/JDBC database prototype are currently separate and are not integrated.
 
 ---
 
 ## 🚀 Quick Start Guide
 
-### Option 1: Run the Frontend Directly (Any Web Browser)
-You do **not** need any complex build tools to use or edit the frontend:
-1. Extract the ZIP file.
-2. Double-click or open `login.html` (or `index.html`) in any browser (Chrome, Edge, Firefox, Safari).
-3. Everything (dashboard, POS billing counter, inventory, reports, printable invoices, interactive charts) works out of the box with the built-in browser data store!
+### Option 1: Run the Frontend Locally
+The frontend uses a built-in browser data store and can be run with a local web server. Demo authentication is available only on a loopback host (`localhost`, `127.0.0.1`, or `::1`); opening `login.html` directly from disk or hosting the static frontend remotely does not provide production authentication.
 
 #### Quick Demo Accounts:
 - **Administrator**: `admin@medcare.com` / `admin123` (Full System Access)
 - **Pharmacist**: `pharmacist@medcare.com` / `pharm123` (POS & Inventory Restock)
 - **Cashier**: `cashier@medcare.com` / `cash123` (Billing & Invoices)
-*(Or use the 1-click quick login buttons on the login page)*
+*(Or use the 1-click quick sign-in buttons on the login page.)*
+These accounts are for local development and evaluation only. The browser-based session is not a production security boundary; production deployments must use server-side authentication.
 
 ---
 
 ### Option 2: Run with a Local Web Server (Recommended)
-If using VS Code:
-1. Open the project folder in VS Code.
-2. Right-click `index.html` or `login.html` and select **"Open with Live Server"**.
-
-Or using Python:
+From the project root in PowerShell, run:
 ```bash
-# Python 3
-python3 -m http.server 3000
+npm install
+npm run dev
 ```
-Open `http://localhost:3000` in your browser.
+Open `http://127.0.0.1:3000/` or `http://127.0.0.1:3000/login.html`. The Vite dev server binds to loopback for the browser-local demo; this does not provide production authentication or server-side authorization.
 
 ---
 
-### Option 3: Full-Stack Setup with Java & MySQL
+### Option 3: Standalone Java/JDBC and MySQL Development (Not Connected to the UI)
 
 #### 1. Setup MySQL Database
 1. Open your MySQL client or terminal:
@@ -45,19 +39,17 @@ Open `http://localhost:3000` in your browser.
    ```sql
    SOURCE database/medical_store_db.sql;
    ```
+   **Warning:** the script drops and recreates `medical_store_db`. Back up any existing database before running it.
 3. This creates `medical_store_db` with all 9 relational tables, foreign keys, triggers, and sample medicines.
 
 #### 2. Run Java Backend (JDBC)
 1. Ensure Java 17+ and Maven are installed.
-2. Navigate to the backend folder:
-   ```bash
-   cd backend
-   mvn clean compile package
-   ```
-3. Run the application:
-   ```bash
-   java -jar target/medcare-backend.jar
-   ```
+   2. Navigate to the backend folder:
+      ```bash
+      cd backend
+      mvn clean compile package
+      ```
+      The sources include a console `MainApplication` for connection checks, but this project does not configure an executable service JAR or expose HTTP endpoints. It does not connect the browser UI to MySQL.
 
 ---
 
@@ -79,7 +71,7 @@ medcare-pharmacy/
 ├── reports.html             # Auditable financial statements & CSV export
 ├── users.html               # Operator management with role-based access (RBAC)
 ├── settings.html            # Store configuration, drug license, GST & password change
-├── backend-explorer.html    # Interactive in-app Java & MySQL source code inspector
+├── backend-explorer.html    # Admin-only developer source reference (not in staff navigation)
 ├── css/
 │   ├── style.css            # Pharmacy theme stylesheet & print media queries
 │   └── animations.css       # Keyframe animations (logo, background, buttons)
@@ -94,7 +86,8 @@ medcare-pharmacy/
 │   ├── expiry.js            # Shelf-life days remaining & quarantine
 │   ├── reports.js           # Statement aggregations & CSV export
 │   ├── users.js             # User RBAC logic
-│   └── settings.js          # Store configuration persistence
+│   ├── settings.js          # Store configuration persistence
+│   └── backend-explorer.js  # Read-only repository source previews
 ├── assets/
 │   ├── logo.svg             # Vector animated medical logo
 │   ├── favicon.svg          # Matching browser tab favicon
@@ -112,6 +105,9 @@ medcare-pharmacy/
         ├── util/            # PasswordUtil (Hashing) & InputValidator
         └── MainApplication.java # Java application entry point
 ```
+
+### Data and authorization boundary
+The frontend currently reads and writes browser `localStorage`; it is not connected to the Java/MySQL backend. Local role checks protect normal UI navigation and data-store operations but can be bypassed by a user controlling the browser, so they are not production server-side authorization. The Java backend currently exposes no HTTP endpoints. Existing browser records are not automatically migrated to MySQL.
 
 ---
 

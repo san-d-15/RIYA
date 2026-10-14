@@ -119,10 +119,18 @@ function saveSupplier() {
   };
 
   if (editingSupplierId) {
-    MedCareDB.updateSupplier(editingSupplierId, payload);
+    const updated = MedCareDB.updateSupplier(editingSupplierId, payload);
+    if (!updated) {
+      MedCareUI.showToast(`Could not save supplier "${supplierName}". Browser storage may be unavailable.`, "danger");
+      return;
+    }
     MedCareUI.showToast(`Updated supplier "${supplierName}".`, "success");
   } else {
-    MedCareDB.addSupplier(payload);
+    const added = MedCareDB.addSupplier(payload);
+    if (!added) {
+      MedCareUI.showToast(`Could not save supplier "${supplierName}". Browser storage may be unavailable.`, "danger");
+      return;
+    }
     MedCareUI.showToast(`Supplier "${supplierName}" registered.`, "success");
   }
 
@@ -135,7 +143,10 @@ window.deleteSupplierConfirm = function(id) {
   if (!s) return;
 
   MedCareUI.confirmAction(`Are you sure you want to delete supplier "${s.supplierName}"?`, () => {
-    MedCareDB.deleteSupplier(id);
+    if (!MedCareDB.deleteSupplier(id)) {
+      MedCareUI.showToast(`Could not delete supplier "${s.supplierName}". No change was saved.`, "danger");
+      return;
+    }
     MedCareUI.showToast(`Supplier "${s.supplierName}" removed.`, "warning");
     loadSuppliers();
   });

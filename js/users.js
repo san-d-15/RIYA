@@ -76,6 +76,7 @@ window.openAddUserModal = function() {
   document.getElementById('modal-user-title').innerText = 'Add New System User';
   document.getElementById('user-form').reset();
   document.getElementById('user-password-group').style.display = 'block';
+  document.getElementById('user-password').required = true;
   MedCareUI.openModal('user-modal');
 };
 
@@ -92,20 +93,32 @@ window.openEditUserModal = function(id) {
   document.getElementById('user-role').value = u.role;
   document.getElementById('user-status').value = u.status || 'Active';
   document.getElementById('user-password-group').style.display = 'none';
+  document.getElementById('user-password').required = false;
 
   MedCareUI.openModal('user-modal');
 };
 
-function saveUser() {
+async function saveUser() {
   const name = document.getElementById('user-name').value.trim();
   const username = document.getElementById('user-username').value.trim();
   const email = document.getElementById('user-email').value.trim();
   const phone = document.getElementById('user-phone').value.trim();
   const role = document.getElementById('user-role').value;
   const status = document.getElementById('user-status').value;
+  const password = document.getElementById('user-password').value;
 
   if (!name || !username || !email) {
     MedCareUI.showToast("Name, username and email are required.", "danger");
+    return;
+  }
+
+  const duplicate = MedCareDB.getUsers().some(user =>
+    String(user.id) !== String(editingUserId || '') &&
+    (user.username.toLowerCase() === username.toLowerCase() ||
+     user.email.toLowerCase() === email.toLowerCase())
+  );
+  if (duplicate) {
+    MedCareUI.showToast("That username or email is already assigned to another account.", "danger");
     return;
   }
 
@@ -120,10 +133,22 @@ function saveUser() {
   };
 
   if (editingUserId) {
-    MedCareDB.updateUser(editingUserId, payload);
+    if (!MedCareDB.updateUser(editingUserId, payload)) {
+      MedCareUI.showToast("Unable to save user changes.", "danger");
+      return;
+    }
     MedCareUI.showToast(`User ${name} updated successfully.`, "success");
   } else {
-    MedCareDB.addUser(payload);
+    try {
+      const created = await MedCareAuth.createUser(payload, password);
+      if (!created) {
+        MedCareUI.showToast("Unable to save the new account to browser storage.", "danger");
+        return;
+      }
+    } catch (error) {
+      MedCareUI.showToast(error.message || "Unable to create user account.", "danger");
+      return;
+    }
     MedCareUI.showToast(`User ${name} created with role ${role}.`, "success");
   }
 
@@ -132,11 +157,15 @@ function saveUser() {
 }
 
 window.deleteUserConfirm = function(id) {
+  if (!MedCareAuth.authorize('user.write')) return;
   const u = MedCareDB.getUsers().find(user => user.id === parseInt(id, 10));
   if (!u) return;
 
   MedCareUI.confirmAction(`Remove user account for "${u.name}" (${u.role})?`, () => {
-    MedCareDB.deleteUser(id);
+    if (!MedCareDB.deleteUser(id)) {
+      MedCareUI.showToast(`Could not remove "${u.name}". No change was saved.`, "danger");
+      return;
+    }
     MedCareUI.showToast(`User account deleted.`, "warning");
     loadUsers();
   });

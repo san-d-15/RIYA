@@ -4,6 +4,11 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   renderAppShell('expiry');
+  const requestedFilter = new URLSearchParams(window.location.search).get('filter');
+  const filterSelect = document.getElementById('expiry-timeframe-filter');
+  if (filterSelect && [...filterSelect.options].some(option => option.value === requestedFilter)) {
+    filterSelect.value = requestedFilter;
+  }
   loadExpiryTracking();
   setupExpiryEvents();
 });
@@ -92,14 +97,14 @@ function loadExpiryTracking() {
           </span>
         </td>
         <td class="text-right">
-          ${m.daysRemaining <= 0 ? `
+          ${m.daysRemaining <= 0 && m.quarantineStatus !== 'Quarantined' && m.quantity > 0 ? `
             <button class="btn btn-danger btn-sm" onclick="quarantineBatch(${m.id})">
-              <i class="fa-solid fa-box-archive text-xs"></i> Quarantine & Return
+              <i class="fa-solid fa-box-archive text-xs"></i> Quarantine Stock
             </button>
+          ` : m.quarantineStatus === 'Quarantined' ? `
+            <span class="badge badge-neutral">Quarantined (${m.quarantinedQuantity || 0})</span>
           ` : `
-            <button class="btn btn-outline btn-sm" onclick="quarantineBatch(${m.id})">
-              <i class="fa-solid fa-tag text-xs"></i> Discount Clear
-            </button>
+            <span class="text-xs text-slate-500" title="No controlled markdown workflow is configured">Markdown not supported</span>
           `}
         </td>
       </tr>
@@ -116,7 +121,13 @@ window.quarantineBatch = function(medId) {
   const med = MedCareDB.getMedicines().find(m => m.id === parseInt(medId, 10));
   if (!med) return;
 
-  MedCareUI.confirmAction(`Initiate quarantine process for Batch "${med.batchNumber}" of ${med.name}? This will record batch return to supplier ${med.supplier || 'Vendor'}.`, () => {
-    MedCareUI.showToast(`Batch ${med.batchNumber} marked for supplier quarantine & credit return.`, "info");
+  MedCareUI.confirmAction(`Quarantine expired Batch "${med.batchNumber}" of ${med.name} and remove its units from saleable stock? Supplier return and credit are not recorded.`, () => {
+    const quarantined = MedCareDB.quarantineExpiredMedicine(medId);
+    if (!quarantined) {
+      MedCareUI.showToast('Unable to quarantine this batch. It must be expired, in stock, and not already quarantined.', 'danger');
+      return;
+    }
+    MedCareUI.showToast(`Batch ${med.batchNumber} quarantined and removed from saleable stock. Supplier return or credit is not recorded.`, "warning");
+    loadExpiryTracking();
   });
 };

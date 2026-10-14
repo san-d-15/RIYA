@@ -7,6 +7,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 @import url('./animations.css');
 
+.hidden {
+  display: none !important;
+}
+
 :root {
   /* Primary Healthcare Brand */
   --primary-50: #f0f9ff;

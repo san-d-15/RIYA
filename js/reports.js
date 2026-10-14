@@ -13,12 +13,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initReports() {
-  // Set default dates
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date();
+  const todayKey = [today.getFullYear(), String(today.getMonth() + 1).padStart(2, '0'), String(today.getDate()).padStart(2, '0')].join('-');
+  const monthStart = `${todayKey.slice(0, 7)}-01`;
+  const params = new URLSearchParams(window.location.search);
+  const requestedType = params.get('type');
+  const reportSelect = document.getElementById('report-type-select');
+  if (reportSelect && [...reportSelect.options].some(option => option.value === requestedType)) {
+    reportSelect.value = requestedType;
+  }
+  currentReportType = reportSelect?.value || 'sales_daily';
   const startDateInput = document.getElementById('report-start-date');
   const endDateInput = document.getElementById('report-end-date');
-  if (startDateInput) startDateInput.value = '2026-09-01';
-  if (endDateInput) endDateInput.value = today;
+  if (startDateInput) startDateInput.value = currentReportType === 'expired' ? '' : monthStart;
+  if (endDateInput) endDateInput.value = currentReportType === 'expired' ? '' : todayKey;
 
   generateReport();
 }
@@ -50,7 +58,25 @@ function generateReport() {
 
   if (type === 'sales_daily' || type === 'sales_monthly') {
     const sales = MedCareDB.getSales();
-    reportData = sales.filter(s => (!startDate || s.date >= startDate) && (!endDate || s.date <= endDate));
+    const selectedSales = sales.filter(s => (!startDate || s.date >= startDate) && (!endDate || s.date <= endDate));
+    if (type === 'sales_monthly') {
+      const grouped = new Map();
+      selectedSales.forEach(sale => {
+        const month = (sale.date || '').slice(0, 7) || 'Unknown';
+        const totals = grouped.get(month) || {
+          month, invoiceCount: 0, subtotal: 0, taxAmount: 0, discountAmount: 0, grandTotal: 0
+        };
+        totals.invoiceCount++;
+        totals.subtotal += sale.subtotal || 0;
+        totals.taxAmount += sale.taxAmount || 0;
+        totals.discountAmount += sale.discountAmount || 0;
+        totals.grandTotal += sale.grandTotal || 0;
+        grouped.set(month, totals);
+      });
+      reportData = [...grouped.values()].sort((a, b) => a.month.localeCompare(b.month));
+    } else {
+      reportData = selectedSales;
+    }
 
     const totalRevenue = reportData.reduce((acc, s) => acc + (s.grandTotal || 0), 0);
     const totalTax = reportData.reduce((acc, s) => acc + (s.taxAmount || 0), 0);
@@ -61,7 +87,7 @@ function generateReport() {
       <div class="stat-card blue">
         <div class="stat-content">
           <p class="stat-label">Total Invoices</p>
-          <h3 class="stat-value">${reportData.length}</h3>
+          <h3 class="stat-value">${reportData.reduce((count, row) => count + (row.invoiceCount || 1), 0)}</h3>
         </div>
       </div>
       <div class="stat-card green">
@@ -84,7 +110,16 @@ function generateReport() {
       </div>
     `;
 
-    tableHead.innerHTML = `
+    tableHead.innerHTML = type === 'sales_monthly' ? `
+      <tr>
+        <th>Month</th>
+        <th class="text-center">Invoices</th>
+        <th class="text-right">Subtotal</th>
+        <th class="text-right">GST</th>
+        <th class="text-right">Discounts</th>
+        <th class="text-right">Grand Total</th>
+      </tr>
+    ` : `
       <tr>
         <th>Invoice #</th>
         <th>Date & Time</th>
@@ -96,7 +131,16 @@ function generateReport() {
       </tr>
     `;
 
-    tableBody.innerHTML = reportData.map(s => `
+    tableBody.innerHTML = reportData.map(s => type === 'sales_monthly' ? `
+      <tr>
+        <td class="font-mono font-bold">${s.month}</td>
+        <td class="text-center font-mono">${s.invoiceCount}</td>
+        <td class="text-right font-mono">${MedCareUI.formatCurrency(s.subtotal)}</td>
+        <td class="text-right font-mono">${MedCareUI.formatCurrency(s.taxAmount)}</td>
+        <td class="text-right font-mono">${MedCareUI.formatCurrency(s.discountAmount)}</td>
+        <td class="text-right font-mono font-bold">${MedCareUI.formatCurrency(s.grandTotal)}</td>
+      </tr>
+    ` : `
       <tr>
         <td><span class="font-mono font-bold text-primary-700">${s.invoiceNumber}</span></td>
         <td class="font-mono text-xs">${MedCareUI.formatDate(s.date)} ${s.time || ''}</td>
@@ -241,7 +285,11 @@ function generateReport() {
     `).join('');
 
   } else if (type === 'expired') {
-    const medicines = MedCareDB.getMedicines().filter(m => MedCareUI.calculateExpiryDays(m.expiryDate) <= 0);
+    const medicines = MedCareDB.getMedicines().filter(m =>
+      MedCareUI.calculateExpiryDays(m.expiryDate) <= 0 &&
+      (!startDate || m.expiryDate >= startDate) &&
+      (!endDate || m.expiryDate <= endDate)
+    );
     reportData = [...medicines];
 
     titleEl.innerText = 'Expired Drugs & Quarantine Report';
@@ -270,7 +318,7 @@ function generateReport() {
         <td><strong>${m.name}</strong></td>
         <td class="font-mono text-xs font-bold text-danger-600">${m.batchNumber}</td>
         <td class="font-mono text-xs">${MedCareUI.formatDate(m.expiryDate)}</td>
-        <td class="text-center font-mono font-bold">${m.quantity}</td>
+        <td class="text-center font-mono font-bold">${m.quarantinedQuantity || 0}</td>
         <td>${m.manufacturer}</td>
         <td>${m.supplier || 'Vendor'}</td>
       </tr>

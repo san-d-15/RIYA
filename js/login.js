@@ -48,30 +48,38 @@ function initPasswordToggle() {
  * Quick Fill Demo Presets
  */
 function initDemoPresets() {
-  const ROLE_PRESETS = {
-    admin: { email: 'admin@medcare.com', pass: 'admin123' },
-    pharmacist: { email: 'pharmacist@medcare.com', pass: 'pharm123' },
-    cashier: { email: 'cashier@medcare.com', pass: 'cash123' }
-  };
+  const demoOptions = document.getElementById('demo-login-options');
+  const demoLoginEnabled = window.MedCareAuth?.isLocalDevelopment();
+  const demoButtons = [...(demoOptions?.querySelectorAll('[onclick^="quickFillRole"]') || [])];
+  demoButtons.forEach(button => {
+    const role = button.getAttribute('onclick')?.match(/quickFillRole\('([^']+)'\)/)?.[1];
+    if (!role || !window.MedCareAuth.getDemoCredentials(role)) button.classList.add('hidden');
+  });
+  const hasAvailableDemoAccount = demoButtons.some(button => !button.classList.contains('hidden'));
+  if (demoOptions && demoLoginEnabled && hasAvailableDemoAccount) {
+    demoOptions.classList.remove('hidden');
+  }
 
   window.quickFillRole = function(role) {
-    const preset = ROLE_PRESETS[role];
+    const preset = window.MedCareAuth?.getDemoCredentials(role);
     if (!preset) return;
     const idInput = document.getElementById('login-identifier');
     const passInput = document.getElementById('login-password');
     const alertBox = document.getElementById('login-error-alert');
 
     if (idInput && passInput) {
-      idInput.value = preset.email;
-      passInput.value = preset.pass;
+      idInput.value = preset.identifier;
+      passInput.value = preset.password;
       if (alertBox) {
         alertBox.classList.add('hidden');
         alertBox.innerText = '';
       }
+      document.getElementById('login-form')?.requestSubmit();
     }
   };
 
   window.quickFill = function(identifier, password) {
+    if (!window.MedCareAuth?.isLocalDevelopment()) return;
     const idInput = document.getElementById('login-identifier');
     const passInput = document.getElementById('login-password');
     const alertBox = document.getElementById('login-error-alert');
@@ -112,32 +120,27 @@ function initLoginForm() {
     // Set Loading State on Button to prevent multiple clicks
     setLoadingState(true);
 
-    // Simulate realistic server/JDBC verification latency (~400-600ms)
-    setTimeout(() => {
-      try {
-        const result = window.MedCareAuth.login(identifier, password);
+    try {
+      const result = await window.MedCareAuth.login(identifier, password);
 
-        if (result && result.success) {
-          // Success State
-          if (btnText) {
-            btnText.innerHTML = '<i class="fa-solid fa-check me-1.5"></i> Access Granted';
-          }
-          submitBtn.style.background = 'linear-gradient(135deg, #00A896 0%, #059669 100%)';
-          
-          setTimeout(() => {
-            window.location.href = 'dashboard.html';
-          }, 350);
-        } else {
-          // Failure State
-          setLoadingState(false);
-          showLoginError(result ? result.message : 'Invalid credentials. Please verify your details.');
+      if (result && result.success) {
+        if (btnText) {
+          btnText.innerHTML = '<i class="fa-solid fa-check me-1.5"></i> Access Granted';
         }
-      } catch (err) {
+        submitBtn.style.background = 'linear-gradient(135deg, #00A896 0%, #059669 100%)';
+
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 350);
+      } else {
         setLoadingState(false);
-        showLoginError('Authentication error occurred. Please try again.');
-        console.error('Login error:', err);
+        showLoginError(result ? result.message : 'Invalid credentials. Please verify your details.');
       }
-    }, 500);
+    } catch (err) {
+      setLoadingState(false);
+      showLoginError(err.message || 'Authentication error occurred. Please try again.');
+      console.error('Login error:', err);
+    }
   });
 
   function setLoadingState(isLoading) {

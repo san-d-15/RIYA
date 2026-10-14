@@ -160,7 +160,8 @@ function savePurchaseOrder() {
   };
 
   // Record purchase in DB (Increases stock automatically)
-  MedCareDB.recordPurchase(purchaseRecord);
+  const savedPurchase = MedCareDB.recordPurchase(purchaseRecord);
+  if (!savedPurchase) return;
 
   MedCareUI.showToast(`Purchase logged successfully! Stock for ${medicine.name} increased by ${quantity} units.`, "success");
   MedCareUI.closeModal('purchase-modal');

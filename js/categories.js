@@ -94,10 +94,18 @@ function saveCategory() {
   }
 
   if (editingCategoryId) {
-    MedCareDB.updateCategory(editingCategoryId, { name, description });
+    const updated = MedCareDB.updateCategory(editingCategoryId, { name, description });
+    if (!updated) {
+      MedCareUI.showToast(`Could not save category "${name}". Browser storage may be unavailable.`, "danger");
+      return;
+    }
     MedCareUI.showToast(`Updated category "${name}".`, "success");
   } else {
-    MedCareDB.addCategory({ name, description });
+    const added = MedCareDB.addCategory({ name, description });
+    if (!added) {
+      MedCareUI.showToast(`Could not save category "${name}". Browser storage may be unavailable.`, "danger");
+      return;
+    }
     MedCareUI.showToast(`Category "${name}" created.`, "success");
   }
 
@@ -110,7 +118,10 @@ window.deleteCategoryConfirm = function(id) {
   if (!cat) return;
 
   MedCareUI.confirmAction(`Delete category "${cat.name}"? Note that medicines assigned to it will remain.`, () => {
-    MedCareDB.deleteCategory(id);
+    if (!MedCareDB.deleteCategory(id)) {
+      MedCareUI.showToast(`Could not delete category "${cat.name}". No change was saved.`, "danger");
+      return;
+    }
     MedCareUI.showToast(`Category "${cat.name}" deleted.`, "warning");
     loadCategories();
   });

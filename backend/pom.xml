@@ -33,13 +33,6 @@
             <version>5.1.0</version>
         </dependency>
 
-        <!-- BCrypt Password Hashing -->
-        <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>0.4</version>
-        </dependency>
-
         <!-- Jackson JSON Parser -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

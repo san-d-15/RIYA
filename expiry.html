@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Expiry Tracking & Quarantine - MedCare Pharmacy</title>
-  <meta name="description" content="Proactive medicine expiry radar, batch shelf-life tracking, and supplier return quarantine.">
+  <meta name="description" content="Track medicine expiry dates and quarantine expired stock from saleable inventory.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -23,7 +23,7 @@
             <p>Proactive early-warning radar for batches approaching expiration to prevent dispensing hazards.</p>
           </div>
           <div class="page-actions">
-            <a href="reports.html" class="btn btn-outline">
+            <a href="reports.html?type=expired" class="btn btn-outline">
               <i class="fa-solid fa-file-excel"></i> Export Expiry Report
             </a>
           </div>
@@ -33,7 +33,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div class="card p-4 border-l-4 border-red-600 flex items-center justify-between">
             <div>
-              <p class="text-xs font-semibold text-slate-500 uppercase">Already Expired Batches (Immediate Quarantine)</p>
+              <p class="text-xs font-semibold text-slate-500 uppercase">Batches Past Expiry Date</p>
               <h3 class="text-3xl font-bold font-mono text-red-600" id="expiry-count-expired">0</h3>
             </div>
             <div class="text-red-500 text-3xl">

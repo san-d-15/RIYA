@@ -42,7 +42,7 @@
             </div>
             <div class="p-3 bg-white border border-slate-200 rounded-lg">
               <span class="badge badge-neutral font-bold mb-1">Cashier</span>
-              <p class="text-slate-600">Front counter: Point of Sale billing, customer lookups, receipt reprint, shift closing.</p>
+              <p class="text-slate-600">Front counter: Point of Sale billing and customer records.</p>
             </div>
           </div>
         </div>
@@ -102,8 +102,8 @@
 
           <div class="form-group" id="user-password-group">
             <label class="form-label" for="user-password">Initial Password <span class="required">*</span></label>
-            <input type="password" id="user-password" class="form-control font-mono" placeholder="Minimum 6 characters" required>
-            <span class="text-xs text-slate-400">Assign a secure initial password for this account</span>
+            <input type="password" id="user-password" class="form-control font-mono" placeholder="Minimum 8 characters" minlength="8" required>
+            <span class="text-xs text-slate-400">Set an initial password; it is hashed in this browser's local store.</span>
           </div>
 
           <div class="form-grid">

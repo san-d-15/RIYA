@@ -95,7 +95,7 @@
           <div class="card pos-billing-summary">
             <div class="card-header">
               <h2>Invoice Summary</h2>
-              <span class="text-xs text-emerald-600 font-bold"><i class="fa-solid fa-shield-halved"></i> Live Stock Sync</span>
+              <span class="text-xs text-emerald-600 font-bold"><i class="fa-solid fa-shield-halved"></i> Browser-local stock update</span>
             </div>
 
             <div class="p-4 flex flex-col flex-1 justify-between">
@@ -120,6 +120,7 @@
                   </div>
                   <span class="font-mono text-emerald-600 font-bold" id="pos-discount-amount">- ₹0.00</span>
                 </div>
+                <p id="discount-validation-message" class="hidden text-xs text-red-600" role="alert">Discount must be between 0 and 100%.</p>
 
                 <!-- Tax / GST -->
                 <div class="summary-row">

@@ -486,6 +486,10 @@ const INITIAL_DATABASE = {
   ]
 };
 
+function localDateKey(date = new Date()) {
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+}
+
 // ==========================================================================
 // LocalStorage Persistence Wrapper
 // ==========================================================================
@@ -511,14 +515,22 @@ class MedCareDataStore {
   saveData(data) {
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(data || this.data));
+      return true;
     } catch (e) {
       console.error("Storage save failed", e);
+      return false;
     }
   }
 
   resetToDefault() {
+    if (!MedCareAuth.authorize('admin')) return false;
+    const previous = this.data;
     this.data = JSON.parse(JSON.stringify(INITIAL_DATABASE));
-    this.saveData(this.data);
+    if (!this.saveData(this.data)) {
+      this.data = previous;
+      return false;
+    }
+    return true;
   }
 
   // Getters
@@ -533,104 +545,200 @@ class MedCareDataStore {
 
   // Medicines Management
   addMedicine(med) {
-    med.id = Date.now();
-    med.purchasePrice = parseFloat(med.purchasePrice) || 0;
-    med.sellingPrice = parseFloat(med.sellingPrice) || 0;
-    med.quantity = parseInt(med.quantity, 10) || 0;
-    med.minStockLevel = parseInt(med.minStockLevel, 10) || 10;
-    this.data.medicines.unshift(med);
-    this.saveData();
-    return med;
+    if (!MedCareAuth.authorize('medicine.write')) return null;
+    const previous = this.data.medicines;
+    const medicine = {
+      ...med,
+      id: Date.now(),
+      purchasePrice: parseFloat(med.purchasePrice) || 0,
+      sellingPrice: parseFloat(med.sellingPrice) || 0,
+      quantity: parseInt(med.quantity, 10) || 0,
+      minStockLevel: parseInt(med.minStockLevel, 10) || 10
+    };
+    this.data.medicines = [medicine, ...previous];
+    if (!this.saveData()) {
+      this.data.medicines = previous;
+      return null;
+    }
+    return medicine;
   }
 
   updateMedicine(id, updatedFields) {
+    if (!MedCareAuth.authorize('medicine.write')) return null;
     const idx = this.data.medicines.findIndex(m => m.id === parseInt(id, 10));
-    if (idx !== -1) {
-      this.data.medicines[idx] = { ...this.data.medicines[idx], ...updatedFields };
-      this.saveData();
-      return this.data.medicines[idx];
+    if (idx === -1) return null;
+    const previous = this.data.medicines;
+    const medicine = { ...previous[idx], ...updatedFields };
+    this.data.medicines = previous.map((current, index) => index === idx ? medicine : current);
+    if (!this.saveData()) {
+      this.data.medicines = previous;
+      return null;
     }
-    return null;
+    return medicine;
   }
 
   deleteMedicine(id) {
-    this.data.medicines = this.data.medicines.filter(m => m.id !== parseInt(id, 10));
-    this.saveData();
+    if (!MedCareAuth.authorize('medicine.write')) return false;
+    const previous = this.data.medicines;
+    const medicines = previous.filter(m => m.id !== parseInt(id, 10));
+    if (medicines.length === previous.length) return false;
+    this.data.medicines = medicines;
+    if (!this.saveData()) {
+      this.data.medicines = previous;
+      return false;
+    }
+    return true;
   }
 
   // Category Management
   addCategory(category) {
-    category.id = Date.now();
-    this.data.categories.push(category);
-    this.saveData();
-    return category;
+    if (!MedCareAuth.authorize('catalog.write')) return null;
+    const previous = this.data.categories;
+    const newCategory = { ...category, id: Date.now() };
+    this.data.categories = [...previous, newCategory];
+    if (!this.saveData()) {
+      this.data.categories = previous;
+      return null;
+    }
+    return newCategory;
   }
 
   updateCategory(id, updated) {
+    if (!MedCareAuth.authorize('catalog.write')) return null;
     const idx = this.data.categories.findIndex(c => c.id === parseInt(id, 10));
-    if (idx !== -1) {
-      this.data.categories[idx] = { ...this.data.categories[idx], ...updated };
-      this.saveData();
-      return this.data.categories[idx];
+    if (idx === -1) return null;
+    const previous = this.data.categories;
+    const category = { ...previous[idx], ...updated };
+    this.data.categories = previous.map((current, index) => index === idx ? category : current);
+    if (!this.saveData()) {
+      this.data.categories = previous;
+      return null;
     }
-    return null;
+    return category;
   }
 
   deleteCategory(id) {
-    this.data.categories = this.data.categories.filter(c => c.id !== parseInt(id, 10));
-    this.saveData();
+    if (!MedCareAuth.authorize('catalog.write')) return false;
+    const previous = this.data.categories;
+    const categories = previous.filter(c => c.id !== parseInt(id, 10));
+    if (categories.length === previous.length) return false;
+    this.data.categories = categories;
+    if (!this.saveData()) {
+      this.data.categories = previous;
+      return false;
+    }
+    return true;
   }
 
   // Supplier Management
   addSupplier(supplier) {
-    supplier.id = Date.now();
-    this.data.suppliers.push(supplier);
-    this.saveData();
-    return supplier;
+    if (!MedCareAuth.authorize('procurement.write')) return null;
+    const previous = this.data.suppliers;
+    const newSupplier = { ...supplier, id: Date.now() };
+    this.data.suppliers = [...previous, newSupplier];
+    if (!this.saveData()) {
+      this.data.suppliers = previous;
+      return null;
+    }
+    return newSupplier;
   }
 
   updateSupplier(id, updated) {
+    if (!MedCareAuth.authorize('procurement.write')) return null;
     const idx = this.data.suppliers.findIndex(s => s.id === parseInt(id, 10));
-    if (idx !== -1) {
-      this.data.suppliers[idx] = { ...this.data.suppliers[idx], ...updated };
-      this.saveData();
-      return this.data.suppliers[idx];
+    if (idx === -1) return null;
+    const previous = this.data.suppliers;
+    const supplier = { ...previous[idx], ...updated };
+    this.data.suppliers = previous.map((current, index) => index === idx ? supplier : current);
+    if (!this.saveData()) {
+      this.data.suppliers = previous;
+      return null;
     }
-    return null;
+    return supplier;
   }
 
   deleteSupplier(id) {
-    this.data.suppliers = this.data.suppliers.filter(s => s.id !== parseInt(id, 10));
-    this.saveData();
+    if (!MedCareAuth.authorize('procurement.write')) return false;
+    const previous = this.data.suppliers;
+    const suppliers = previous.filter(s => s.id !== parseInt(id, 10));
+    if (suppliers.length === previous.length) return false;
+    this.data.suppliers = suppliers;
+    if (!this.saveData()) {
+      this.data.suppliers = previous;
+      return false;
+    }
+    return true;
   }
 
   // Customer Management
   addCustomer(customer) {
-    customer.id = Date.now();
-    customer.purchaseHistoryCount = 0;
-    customer.totalSpent = 0;
-    this.data.customers.push(customer);
-    this.saveData();
-    return customer;
+    if (!MedCareAuth.authorize('customer.write')) return null;
+    const previous = this.data.customers;
+    const newCustomer = {
+      ...customer,
+      id: Date.now(),
+      purchaseHistoryCount: 0,
+      totalSpent: 0
+    };
+    this.data.customers = [...previous, newCustomer];
+    if (!this.saveData()) {
+      this.data.customers = previous;
+      return null;
+    }
+    return newCustomer;
   }
 
   updateCustomer(id, updated) {
+    if (!MedCareAuth.authorize('customer.write')) return null;
     const idx = this.data.customers.findIndex(c => c.id === parseInt(id, 10));
-    if (idx !== -1) {
-      this.data.customers[idx] = { ...this.data.customers[idx], ...updated };
-      this.saveData();
-      return this.data.customers[idx];
+    if (idx === -1) return null;
+    const previous = this.data.customers;
+    const customer = { ...previous[idx], ...updated };
+    this.data.customers = previous.map((current, index) => index === idx ? customer : current);
+    if (!this.saveData()) {
+      this.data.customers = previous;
+      return null;
     }
-    return null;
+    return customer;
   }
 
   deleteCustomer(id) {
-    this.data.customers = this.data.customers.filter(c => c.id !== parseInt(id, 10));
-    this.saveData();
+    if (!MedCareAuth.authorize('customer.write')) return false;
+    const previous = this.data.customers;
+    const customers = previous.filter(c => c.id !== parseInt(id, 10));
+    if (customers.length === previous.length) return false;
+    this.data.customers = customers;
+    if (!this.saveData()) {
+      this.data.customers = previous;
+      return false;
+    }
+    return true;
   }
 
   // Sales & POS Billing (Deducts stock automatically in DB)
   recordSale(saleData) {
+    if (!MedCareAuth.authorize('sale.write')) return null;
+    if (!Array.isArray(saleData.items) || saleData.items.length === 0) {
+      MedCareUI.showToast('Sale rejected: add at least one medicine to the bill.', 'danger');
+      return null;
+    }
+    const discountPercent = Number(saleData.discountPercent ?? 0);
+    if (!Number.isFinite(discountPercent) || discountPercent < 0 || discountPercent > 100) {
+      MedCareUI.showToast('Sale rejected: discount must be between 0 and 100%.', 'danger');
+      return null;
+    }
+    const invalidItem = saleData.items.find(item => {
+      const med = this.data.medicines.find(candidate => candidate.id === parseInt(item.medicineId, 10));
+      const quantity = Number(item.quantity);
+      return !med || !Number.isInteger(quantity) || quantity <= 0 ||
+        parseInt(item.quantity, 10) > med.quantity ||
+        MedCareUI.calculateExpiryDays(med.expiryDate) <= 0;
+    });
+    if (invalidItem) {
+      MedCareUI.showToast('Sale rejected: a medicine is missing, expired, or has insufficient stock.', 'danger');
+      return null;
+    }
+    const snapshot = JSON.stringify(this.data);
     const saleId = Date.now();
     const invCount = this.data.sales.length + 504;
     const invoiceNumber = `${this.data.settings.invoicePrefix || 'MED-2026-'}${String(invCount).padStart(5, '0')}`;
@@ -638,7 +746,7 @@ class MedCareDataStore {
     const newSale = {
       id: saleId,
       invoiceNumber: invoiceNumber,
-      date: new Date().toISOString().split('T')[0],
+      date: localDateKey(),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       ...saleData
     };
@@ -660,16 +768,40 @@ class MedCareDataStore {
     }
 
     this.data.sales.unshift(newSale);
-    this.saveData();
+    if (!this.saveData()) {
+      this.data = JSON.parse(snapshot);
+      MedCareUI.showToast('Sale could not be saved to browser storage; stock was not changed.', 'danger');
+      return null;
+    }
     return newSale;
   }
 
   // Purchase Module (Increases stock automatically in DB)
   recordPurchase(purchaseData) {
+    if (!MedCareAuth.authorize('purchase.write')) return null;
+    const items = purchaseData.items;
+    if (!Array.isArray(items) || items.length === 0) {
+      MedCareUI.showToast('Purchase rejected: add at least one valid purchase item.', 'danger');
+      return null;
+    }
+    const item = items[0];
+    const medicine = item && this.data.medicines.find(candidate => candidate.id === parseInt(item.medicineId, 10));
+    const supplier = this.data.suppliers.find(candidate => candidate.id === parseInt(purchaseData.supplierId, 10));
+    const invalidItem = items.find(purchaseItem => {
+      const itemMedicine = this.data.medicines.find(candidate => candidate.id === parseInt(purchaseItem.medicineId, 10));
+      return !itemMedicine || !Number.isInteger(Number(purchaseItem.quantity)) ||
+        Number(purchaseItem.quantity) <= 0 || !Number.isFinite(Number(purchaseItem.purchasePrice)) ||
+        Number(purchaseItem.purchasePrice) < 0;
+    });
+    if (!medicine || !supplier || invalidItem) {
+      MedCareUI.showToast('Purchase rejected: verify the supplier, medicine, quantity, and price.', 'danger');
+      return null;
+    }
+    const snapshot = JSON.stringify(this.data);
     const purchaseId = Date.now();
     const newPurchase = {
       id: purchaseId,
-      date: new Date().toISOString().split('T')[0],
+      date: localDateKey(),
       ...purchaseData
     };
 
@@ -685,38 +817,117 @@ class MedCareDataStore {
     });
 
     this.data.purchases.unshift(newPurchase);
-    this.saveData();
+    if (!this.saveData()) {
+      this.data = JSON.parse(snapshot);
+      MedCareUI.showToast('Purchase could not be saved to browser storage; stock was not changed.', 'danger');
+      return null;
+    }
     return newPurchase;
   }
 
   // User Management
   addUser(user) {
+    if (!MedCareAuth.authorize('user.write')) return null;
+    const previousUsers = this.data.users;
     user.id = Date.now();
     user.createdAt = new Date().toISOString().split('T')[0];
-    this.data.users.push(user);
-    this.saveData();
+    this.data.users = [...previousUsers, user];
+    if (!this.saveData()) {
+      this.data.users = previousUsers;
+      return null;
+    }
     return user;
   }
 
   updateUser(id, updated) {
+    if (!MedCareAuth.authorize('user.write')) return null;
     const idx = this.data.users.findIndex(u => u.id === parseInt(id, 10));
     if (idx !== -1) {
-      this.data.users[idx] = { ...this.data.users[idx], ...updated };
-      this.saveData();
+      const previous = this.data.users[idx];
+      this.data.users[idx] = { ...previous, ...updated };
+      if (!this.saveData()) {
+        this.data.users[idx] = previous;
+        return null;
+      }
       return this.data.users[idx];
     }
     return null;
   }
 
   deleteUser(id) {
-    this.data.users = this.data.users.filter(u => u.id !== parseInt(id, 10));
-    this.saveData();
+    if (!MedCareAuth.authorize('user.write')) return false;
+    const previous = this.data.users;
+    const users = previous.filter(u => u.id !== parseInt(id, 10));
+    if (users.length === previous.length) return false;
+    this.data.users = users;
+    if (!this.saveData()) {
+      this.data.users = previous;
+      return false;
+    }
+    return true;
   }
 
   updateSettings(newSettings) {
+    if (!MedCareAuth.authorize('settings.write')) return null;
+    const previous = this.data.settings;
     this.data.settings = { ...this.data.settings, ...newSettings };
-    this.saveData();
+    if (!this.saveData()) {
+      this.data.settings = previous;
+      return null;
+    }
     return this.data.settings;
+  }
+
+  quarantineExpiredMedicine(id) {
+    if (!MedCareAuth.authorize('expiry.write')) return null;
+    const medicine = this.data.medicines.find(candidate => candidate.id === parseInt(id, 10));
+    if (!medicine || MedCareUI.calculateExpiryDays(medicine.expiryDate) > 0 ||
+        medicine.quarantineStatus === 'Quarantined' || medicine.quantity <= 0) return null;
+
+    const originalQuantity = medicine.quantity;
+    medicine.quantity = 0;
+    medicine.quarantinedQuantity = (medicine.quarantinedQuantity || 0) + originalQuantity;
+    medicine.quarantineStatus = 'Quarantined';
+    medicine.quarantinedAt = new Date().toISOString();
+    this.data.expiryActions = this.data.expiryActions || [];
+    this.data.expiryActions.unshift({
+      id: Date.now(),
+      medicineId: medicine.id,
+      batchNumber: medicine.batchNumber,
+      quantity: originalQuantity,
+      action: 'quarantine',
+      date: medicine.quarantinedAt,
+      userId: MedCareAuth.getCurrentUser()?.id
+    });
+    if (!this.saveData()) {
+      medicine.quantity = originalQuantity;
+      medicine.quarantinedQuantity -= originalQuantity;
+      delete medicine.quarantineStatus;
+      delete medicine.quarantinedAt;
+      this.data.expiryActions.shift();
+      return null;
+    }
+    return medicine;
+  }
+
+  setUserPassword(id, passwordHash, demoUpgrade = false) {
+    const currentUser = MedCareAuth.getCurrentUser();
+    if (!currentUser || (String(currentUser.id) !== String(id) &&
+        !MedCareAuth.authorize('user.write'))) return null;
+    const user = this.data.users.find(candidate => String(candidate.id) === String(id));
+    if (!user) return null;
+    const previousHash = user.passwordHash;
+    const previousChangedState = user.demoPasswordChanged;
+    user.passwordHash = passwordHash;
+    if (!demoUpgrade) user.demoPasswordChanged = true;
+    if (!this.saveData()) {
+      if (previousHash) user.passwordHash = previousHash;
+      else delete user.passwordHash;
+      if (previousChangedState === undefined) delete user.demoPasswordChanged;
+      else user.demoPasswordChanged = previousChangedState;
+      return null;
+    }
+    return user;
   }
 }
 
@@ -726,19 +937,131 @@ window.MedCareDB = new MedCareDataStore();
 // ==========================================================================
 // Authentication & Session Management
 // ==========================================================================
+const LOCAL_DEMO_ACCOUNTS = [
+  { username: 'admin', email: 'admin@medcare.com', role: 'Admin', password: 'admin123' },
+  { username: 'pharmacist', email: 'pharmacist@medcare.com', role: 'Pharmacist', password: 'pharm123' },
+  { username: 'cashier', email: 'cashier@medcare.com', role: 'Cashier', password: 'cash123' }
+];
+
+const ROLE_PERMISSIONS = {
+  Admin: ['*'],
+  Pharmacist: [
+    'page.dashboard', 'page.medicines', 'page.inventory', 'page.sales',
+    'page.purchases', 'page.expiry', 'page.reports', 'page.customers',
+    'page.suppliers', 'page.categories', 'page.settings', 'medicine.write', 'catalog.write',
+    'procurement.write', 'customer.write', 'sale.write', 'purchase.write',
+    'expiry.write'
+  ],
+  Cashier: ['page.dashboard', 'page.sales', 'page.customers', 'page.settings', 'sale.write', 'customer.write']
+};
+
+const PAGE_PERMISSIONS = {
+  dashboard: 'page.dashboard',
+  medicines: 'page.medicines',
+  inventory: 'page.inventory',
+  sales: 'page.sales',
+  purchases: 'page.purchases',
+  expiry: 'page.expiry',
+  reports: 'page.reports',
+  customers: 'page.customers',
+  suppliers: 'page.suppliers',
+  categories: 'page.categories',
+  users: 'page.users',
+  settings: 'page.settings',
+  backend: 'page.backend'
+};
+
+const PASSWORD_HASH_ITERATIONS = 210000;
+const PASSWORD_HASH_PREFIX = 'pbkdf2-sha256';
+
+function bytesToHex(bytes) {
+  return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+function hexToBytes(hex) {
+  if (typeof hex !== 'string' || hex.length % 2 !== 0 || !/^[0-9a-f]+$/i.test(hex)) return null;
+  return new Uint8Array(hex.match(/.{2}/g).map(byte => parseInt(byte, 16)));
+}
+
+async function derivePasswordHash(password, salt) {
+  if (!window.crypto?.subtle || !window.crypto.getRandomValues) {
+    throw new Error('Secure password hashing is unavailable in this browser context.');
+  }
+  const key = await window.crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']
+  );
+  const bits = await window.crypto.subtle.deriveBits({
+    name: 'PBKDF2',
+    hash: 'SHA-256',
+    salt,
+    iterations: PASSWORD_HASH_ITERATIONS
+  }, key, 256);
+  return `${PASSWORD_HASH_PREFIX}$${PASSWORD_HASH_ITERATIONS}$${bytesToHex(salt)}$${bytesToHex(new Uint8Array(bits))}`;
+}
+
+async function hashPassword(password) {
+  const salt = window.crypto.getRandomValues(new Uint8Array(16));
+  return derivePasswordHash(password, salt);
+}
+
+async function verifyPasswordHash(password, encoded) {
+  if (typeof password !== 'string' || typeof encoded !== 'string') return false;
+  const [algorithm, iterationsText, saltHex, hashHex] = encoded.split('$');
+  const iterations = Number(iterationsText);
+  const salt = hexToBytes(saltHex);
+  const expected = hexToBytes(hashHex);
+  if (algorithm !== PASSWORD_HASH_PREFIX || !Number.isInteger(iterations) ||
+      iterations < 100000 || iterations > 1000000 || !salt || !expected || expected.length !== 32 ||
+      !window.crypto?.subtle) return false;
+
+  const key = await window.crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']
+  );
+  const bits = new Uint8Array(await window.crypto.subtle.deriveBits({
+    name: 'PBKDF2', hash: 'SHA-256', salt, iterations
+  }, key, 256));
+  let difference = 0;
+  for (let index = 0; index < expected.length; index++) difference |= expected[index] ^ bits[index];
+  return difference === 0;
+}
+
 const MedCareAuth = {
   sessionKey: 'medcare_auth_session_user',
+
+  isLocalDevelopment() {
+    return ['localhost', '127.0.0.1', '::1', '[::1]'].includes(window.location.hostname);
+  },
+
+  getDemoCredentials(role) {
+    if (!this.isLocalDevelopment()) return null;
+    const roleName = typeof role === 'string' ? role.toLowerCase() : '';
+    const account = LOCAL_DEMO_ACCOUNTS.find(candidate => candidate.role.toLowerCase() === roleName);
+    const user = account && window.MedCareDB.getUsers().find(candidate =>
+      candidate.username?.toLowerCase() === account.username &&
+      candidate.email?.toLowerCase() === account.email &&
+      candidate.role === account.role &&
+      candidate.status !== 'Suspended'
+    );
+    return user && !user.demoPasswordChanged
+      ? { identifier: account.email, password: account.password }
+      : null;
+  },
 
   getCurrentUser() {
     try {
       const raw = localStorage.getItem(this.sessionKey);
-      if (raw) {
-        const user = JSON.parse(raw);
-        // Validate that the stored object is a real user with an id
-        if (user && user.id) return user;
-      }
-    } catch (e) {}
-    // No valid session — return null so requireAuth() can redirect
+      if (!raw) return null;
+
+      const sessionUser = JSON.parse(raw);
+      const user = window.MedCareDB.getUsers().find(candidate =>
+        candidate.id != null && String(candidate.id) === String(sessionUser?.id)
+      );
+      if (user && user.status !== 'Suspended') return user;
+
+      localStorage.removeItem(this.sessionKey);
+    } catch (error) {
+      console.error('Unable to read the MedCare authentication session.', error);
+    }
     return null;
   },
 
@@ -746,30 +1069,83 @@ const MedCareAuth = {
     localStorage.setItem(this.sessionKey, JSON.stringify(user));
   },
 
-  login(identifier, password) {
+  async login(identifier, password) {
+    if (!this.isLocalDevelopment()) {
+      return {
+        success: false,
+        message: 'Demo sign-in is available only on a local development server.'
+      };
+    }
+    if (typeof identifier !== 'string' || typeof password !== 'string' || !password) {
+      return { success: false, message: 'Invalid username/email or password.' };
+    }
+
     const users = window.MedCareDB.getUsers();
-    // Support matching by username or email
-    const idClean = identifier.trim().toLowerCase();
-    const user = users.find(u => u.username.toLowerCase() === idClean || u.email.toLowerCase() === idClean);
+    const idClean = typeof identifier === 'string' ? identifier.trim().toLowerCase() : '';
+    const user = users.find(candidate =>
+      candidate.status !== 'Suspended' &&
+      ((typeof candidate.username === 'string' && candidate.username.toLowerCase() === idClean) ||
+       (typeof candidate.email === 'string' && candidate.email.toLowerCase() === idClean))
+    );
+    const configuredAccount = user && LOCAL_DEMO_ACCOUNTS.find(account =>
+      account.username === user.username?.toLowerCase() &&
+      account.email === user.email?.toLowerCase() &&
+      account.role === user.role
+    );
 
     if (!user) {
-      return { success: false, message: "User account not found with provided credentials." };
+      return { success: false, message: 'Invalid username/email or password.' };
     }
 
-    // Role-based mock credentials verification (matching database defaults)
-    // admin / admin123, pharmacist / pharm123, cashier / cash123
-    const valid = 
-      (user.role === 'Admin' && password === 'admin123') ||
-      (user.role === 'Pharmacist' && password === 'pharm123') ||
-      (user.role === 'Cashier' && password === 'cash123') ||
-      password === 'admin123' || password === 'password123'; // Friendly fallback for easy testing
-
-    if (!valid) {
-      return { success: false, message: "Incorrect password. Please verify your credentials and try again." };
+    const passwordValid = user.passwordHash
+      ? await verifyPasswordHash(password, user.passwordHash)
+      : Boolean(configuredAccount && configuredAccount.password === password);
+    if (!passwordValid) {
+      return { success: false, message: 'Invalid username/email or password.' };
     }
 
-    this.setCurrentUser(user);
+    this.setCurrentUser({ id: user.id });
+    if (!user.passwordHash && configuredAccount) {
+      const upgradedHash = await hashPassword(password);
+      if (!window.MedCareDB.setUserPassword(user.id, upgradedHash, true)) {
+        localStorage.removeItem(this.sessionKey);
+        return { success: false, message: 'Unable to save credentials. Check browser storage and try again.' };
+      }
+    }
     return { success: true, user };
+  },
+
+  async changePassword(userId, currentPassword, newPassword) {
+    const user = window.MedCareDB.getUsers().find(candidate => String(candidate.id) === String(userId));
+    if (!user || typeof currentPassword !== 'string' || !currentPassword ||
+        typeof newPassword !== 'string' || newPassword.length < 8) return false;
+
+    let currentValid = user.passwordHash
+      ? await verifyPasswordHash(currentPassword, user.passwordHash)
+      : LOCAL_DEMO_ACCOUNTS.some(account =>
+        account.username === user.username?.toLowerCase() &&
+        account.email === user.email?.toLowerCase() &&
+        account.role === user.role &&
+        account.password === currentPassword
+      );
+    if (!currentValid) return false;
+
+    const passwordHash = await hashPassword(newPassword);
+    return Boolean(window.MedCareDB.setUserPassword(userId, passwordHash));
+  },
+
+  async createUser(userData, password) {
+    if (!this.authorize('user.write')) return null;
+    if (typeof password !== 'string' || password.length < 8) {
+      throw new Error('Initial password must be at least 8 characters.');
+    }
+    const duplicate = window.MedCareDB.getUsers().some(user =>
+      user.username?.toLowerCase() === userData.username.toLowerCase() ||
+      user.email?.toLowerCase() === userData.email.toLowerCase()
+    );
+    if (duplicate) throw new Error('That username or email is already in use.');
+    const passwordHash = await hashPassword(password);
+    return window.MedCareDB.addUser({ ...userData, passwordHash });
   },
 
   logout() {
@@ -780,7 +1156,8 @@ const MedCareAuth = {
   requireAuth() {
     const user = this.getCurrentUser();
     if (!user && !window.location.pathname.includes('login.html')) {
-      window.location.href = 'login.html';
+      document.documentElement.style.visibility = 'hidden';
+      window.location.replace('login.html');
     }
     return user;
   },
@@ -788,6 +1165,33 @@ const MedCareAuth = {
   hasRole(...roles) {
     const user = this.getCurrentUser();
     return user && roles.includes(user.role);
+  },
+
+  can(permission) {
+    const user = this.getCurrentUser();
+    const permissions = user && ROLE_PERMISSIONS[user.role];
+    return Boolean(permissions && (permissions.includes('*') || permissions.includes(permission)));
+  },
+
+  authorize(permission) {
+    if (this.can(permission)) return true;
+    MedCareUI.showToast('You are not authorized to perform this action.', 'danger');
+    return false;
+  },
+
+  canAccessPage(page) {
+    const permission = PAGE_PERMISSIONS[page];
+    return Boolean(permission && this.can(permission));
+  },
+
+  requirePageAccess() {
+    const page = window.location.pathname.split('/').pop().replace(/\.html$/, '');
+    if (PAGE_PERMISSIONS[page] && !this.canAccessPage(page)) {
+      document.documentElement.style.visibility = 'hidden';
+      window.location.replace('dashboard.html?accessDenied=1');
+      return false;
+    }
+    return true;
   }
 };
 
@@ -883,6 +1287,11 @@ window.MedCareUI = MedCareUI;
 // ==========================================================================
 function renderAppShell(activePage = 'dashboard') {
   const user = MedCareAuth.getCurrentUser();
+  if (!user) {
+    return null;
+  }
+  if (!MedCareAuth.requirePageAccess()) return null;
+
   const userInitials = (user && user.name) ? user.name.trim().split(/\s+/).filter(Boolean).map(n => n[0]).slice(0, 2).join('').toUpperCase() : 'MC';
   const medicines = MedCareDB.getMedicines();
   const lowStockCount = medicines.filter(m => m.quantity <= m.minStockLevel && MedCareUI.calculateExpiryDays(m.expiryDate) > 0).length;
@@ -1025,13 +1434,6 @@ function renderAppShell(activePage = 'dashboard') {
           </div>
         </a>
 
-        <a href="backend-explorer.html" class="nav-link ${activePage === 'backend' ? 'active' : ''}">
-          <div class="nav-link-content">
-            <i class="fa-solid fa-database"></i>
-            <span>Java & MySQL Code</span>
-          </div>
-          <span class="nav-badge success">JDBC</span>
-        </a>
       </div>
 
       <div class="sidebar-footer">
@@ -1041,6 +1443,20 @@ function renderAppShell(activePage = 'dashboard') {
         </div>
       </div>
     `;
+
+    sidebarEl.querySelectorAll('.nav-link[href]').forEach(link => {
+      const page = link.getAttribute('href').replace(/\.html$/, '');
+      if (!MedCareAuth.canAccessPage(page)) link.remove();
+    });
+    sidebarEl.querySelectorAll('.nav-section-title').forEach(section => {
+      let next = section.nextElementSibling;
+      let hasVisibleLink = false;
+      while (next && !next.classList.contains('nav-section-title')) {
+        if (next.classList.contains('nav-link')) hasVisibleLink = true;
+        next = next.nextElementSibling;
+      }
+      if (!hasVisibleLink) section.remove();
+    });
 
     document.getElementById('sidebar-close-trigger')?.addEventListener('click', () => {
       sidebarEl.classList.remove('mobile-open');
@@ -1064,7 +1480,7 @@ function renderAppShell(activePage = 'dashboard') {
       <div class="header-right">
         <div class="store-status-indicator">
           <div class="status-pulse"></div>
-          <span>MedCare Active (MySQL JDBC)</span>
+          <span>MedCare Active (Browser Data)</span>
         </div>
 
         <!-- Notifications Dropdown -->
@@ -1092,7 +1508,7 @@ function renderAppShell(activePage = 'dashboard') {
                 <a href="expiry.html" class="notification-item danger">
                   <i class="fa-solid fa-ban"></i>
                   <div class="notification-text">
-                    <p>${expiredCount} Expired Batches Quarantined</p>
+                    <p>${expiredCount} Batches Past Expiry</p>
                     <span>Remove from dispensing racks</span>
                   </div>
                 </a>
@@ -1101,7 +1517,7 @@ function renderAppShell(activePage = 'dashboard') {
                 <i class="fa-solid fa-circle-check"></i>
                 <div class="notification-text">
                   <p>Store POS Terminal Ready</p>
-                  <span>Connected to JDBC Transaction Pool</span>
+                  <span>Uses this browser's local demo data</span>
                 </div>
               </a>
             </div>
@@ -1125,9 +1541,6 @@ function renderAppShell(activePage = 'dashboard') {
             </div>
             <a href="settings.html" class="profile-menu-item">
               <i class="fa-solid fa-user-gear"></i> Account Settings
-            </a>
-            <a href="backend-explorer.html" class="profile-menu-item">
-              <i class="fa-solid fa-code"></i> Java Backend Docs
             </a>
             <div class="profile-menu-divider"></div>
             <button class="profile-menu-item text-danger-600 w-full text-left" id="logout-button">
@@ -1192,8 +1605,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!isPublicPage) {
     const user = MedCareAuth.requireAuth();
     if (user) {
-      // Render the sidebar/header shell for authenticated pages
-      // (renderAppShell is called by each page's own JS — this is a safety no-op)
+      MedCareAuth.requirePageAccess();
     }
   }
 });

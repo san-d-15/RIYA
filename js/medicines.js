@@ -301,10 +301,18 @@ function saveMedicine() {
   };
 
   if (editingMedicineId) {
-    MedCareDB.updateMedicine(editingMedicineId, medData);
+    const updated = MedCareDB.updateMedicine(editingMedicineId, medData);
+    if (!updated) {
+      MedCareUI.showToast(`Could not save "${name}". Browser storage may be unavailable.`, 'danger');
+      return;
+    }
     MedCareUI.showToast(`Updated "${name}" successfully.`, 'success');
   } else {
-    MedCareDB.addMedicine(medData);
+    const added = MedCareDB.addMedicine(medData);
+    if (!added) {
+      MedCareUI.showToast(`Could not save "${name}". Browser storage may be unavailable.`, 'danger');
+      return;
+    }
     MedCareUI.showToast(`Added "${name}" to store inventory.`, 'success');
   }
 
@@ -317,7 +325,10 @@ window.deleteMedicineConfirm = function(id) {
   if (!med) return;
 
   MedCareUI.confirmAction(`Are you sure you want to delete "${med.name}" (Batch ${med.batchNumber}) from inventory? This action cannot be undone.`, () => {
-    MedCareDB.deleteMedicine(id);
+    if (!MedCareDB.deleteMedicine(id)) {
+      MedCareUI.showToast(`Could not delete "${med.name}". No change was saved.`, 'danger');
+      return;
+    }
     MedCareUI.showToast(`Medicine "${med.name}" deleted.`, 'warning');
     loadMedicines();
   });

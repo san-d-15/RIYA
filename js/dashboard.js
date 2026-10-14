@@ -21,13 +21,13 @@ function loadDashboardData() {
   const lowStockMeds = medicines.filter(m => m.quantity <= m.minStockLevel && MedCareUI.calculateExpiryDays(m.expiryDate) > 0);
   const expiredMeds = medicines.filter(m => MedCareUI.calculateExpiryDays(m.expiryDate) <= 0);
 
-  // Today's Sales Calculation — sum actual sales recorded today; fall back to total-all-time if no sales today
-  const todayStr = new Date().toISOString().split('T')[0];
+  // Today's metrics include only records dated today; an empty day is zero.
+  const todayStr = localDateKey();
   const todaySales = sales.filter(s => s.date === todayStr);
-  const todaySalesTotal = todaySales.length > 0
-    ? todaySales.reduce((acc, s) => acc + (s.grandTotal || 0), 0)
-    : sales.reduce((acc, s) => acc + (s.grandTotal || 0), 0);
-  const todayPurchasesTotal = purchases.reduce((acc, p) => acc + (p.totalAmount || 0), 0);
+  const todaySalesTotal = todaySales.reduce((acc, s) => acc + (s.grandTotal || 0), 0);
+  const todayPurchasesTotal = purchases
+    .filter(p => p.date === todayStr)
+    .reduce((acc, p) => acc + (p.totalAmount || 0), 0);
 
   // Populate Stat Card Values
   document.getElementById('stat-total-medicines').innerText = totalMeds.toLocaleString('en-IN');
@@ -43,7 +43,7 @@ function loadDashboardData() {
   const recentSalesBody = document.getElementById('recent-sales-tbody');
   if (recentSalesBody) {
     if (sales.length === 0) {
-      recentSalesBody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-400">No sales recorded today yet.</td></tr>`;
+      recentSalesBody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-400">No sales have been recorded.</td></tr>`;
     } else {
       recentSalesBody.innerHTML = sales.slice(0, 5).map(sale => `
         <tr>
@@ -68,7 +68,7 @@ function loadDashboardData() {
   // Render Low Stock Alert List
   const lowStockListEl = document.getElementById('low-stock-alert-list');
   if (lowStockListEl) {
-    const criticalMeds = medicines.filter(m => m.quantity <= m.minStockLevel).slice(0, 4);
+    const criticalMeds = medicines.filter(m => m.quantity <= m.minStockLevel && m.quarantineStatus !== 'Quarantined').slice(0, 4);
     lowStockListEl.innerHTML = criticalMeds.map(m => `
       <div class="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-50 transition">
         <div>
@@ -88,7 +88,7 @@ function loadDashboardData() {
   // Render Expired Alert List
   const expiredListEl = document.getElementById('expired-alert-list');
   if (expiredListEl) {
-    const expiredList = medicines.filter(m => MedCareUI.calculateExpiryDays(m.expiryDate) <= 60).slice(0, 4);
+    const expiredList = medicines.filter(m => MedCareUI.calculateExpiryDays(m.expiryDate) <= 60 && m.quarantineStatus !== 'Quarantined').slice(0, 4);
     expiredListEl.innerHTML = expiredList.map(m => {
       const days = MedCareUI.calculateExpiryDays(m.expiryDate);
       const isExpired = days <= 0;
@@ -103,7 +103,7 @@ function loadDashboardData() {
               ${isExpired ? 'Expired' : days + ' days left'}
             </span>
             <div class="mt-1">
-              <a href="expiry.html" class="text-xs text-slate-600 hover:text-danger-600 font-semibold">Quarantine</a>
+              <a href="expiry.html?filter=${isExpired ? 'expired' : '60days'}" class="text-xs text-slate-600 hover:text-danger-600 font-semibold">Review expiry</a>
             </div>
           </div>
         </div>
@@ -115,17 +115,33 @@ function loadDashboardData() {
 function initDashboardCharts() {
   if (typeof Chart === 'undefined') return;
 
-  // Sales & Purchases Weekly Trend Chart
+  const today = new Date();
+  const dayKeys = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (6 - index));
+    return {
+      key: localDateKey(date),
+      label: date.toLocaleDateString(undefined, { weekday: 'short' })
+    };
+  });
+  const salesByDay = new Map(dayKeys.map(day => [day.key, 0]));
+  const purchasesByDay = new Map(dayKeys.map(day => [day.key, 0]));
+  MedCareDB.getSales().forEach(sale => {
+    if (salesByDay.has(sale.date)) salesByDay.set(sale.date, salesByDay.get(sale.date) + (sale.grandTotal || 0));
+  });
+  MedCareDB.getPurchases().forEach(purchase => {
+    if (purchasesByDay.has(purchase.date)) purchasesByDay.set(purchase.date, purchasesByDay.get(purchase.date) + (purchase.totalAmount || 0));
+  });
+
   const salesChartCtx = document.getElementById('salesRevenueChart')?.getContext('2d');
   if (salesChartCtx) {
     new Chart(salesChartCtx, {
       type: 'line',
       data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Today'],
+        labels: dayKeys.map(day => day.label),
         datasets: [
           {
             label: 'Sales Revenue (₹)',
-            data: [32400, 38200, 41500, 39800, 44200, 48900, 45850],
+            data: dayKeys.map(day => salesByDay.get(day.key)),
             borderColor: '#0284c7',
             backgroundColor: 'rgba(2, 132, 199, 0.08)',
             borderWidth: 2.5,
@@ -136,7 +152,7 @@ function initDashboardCharts() {
           },
           {
             label: 'Stock Purchases (₹)',
-            data: [18000, 22500, 15000, 29000, 12000, 31000, 23750],
+            data: dayKeys.map(day => purchasesByDay.get(day.key)),
             borderColor: '#059669',
             backgroundColor: 'rgba(5, 150, 105, 0.04)',
             borderWidth: 2,
@@ -182,23 +198,23 @@ function initDashboardCharts() {
     });
   }
 
-  // Stock Overview by Category Chart
+  const categoryStock = new Map();
+  MedCareDB.getMedicines().forEach(medicine => {
+    const category = medicine.category || 'Uncategorized';
+    categoryStock.set(category, (categoryStock.get(category) || 0) + Math.max(0, medicine.quantity || 0));
+  });
+  const categoryEntries = [...categoryStock.entries()];
+  const chartColors = ['#0284c7', '#059669', '#8b5cf6', '#f59e0b', '#06b6d4', '#64748b', '#e11d48', '#84cc16'];
+
   const stockCategoryCtx = document.getElementById('stockCategoryChart')?.getContext('2d');
   if (stockCategoryCtx) {
     new Chart(stockCategoryCtx, {
       type: 'doughnut',
       data: {
-        labels: ['Antibiotics', 'Analgesics', 'Antidiabetics', 'Cardio', 'Vitamins', 'Respiratory'],
+        labels: categoryEntries.map(([name]) => name),
         datasets: [{
-          data: [28, 22, 18, 15, 11, 6],
-          backgroundColor: [
-            '#0284c7',
-            '#059669',
-            '#8b5cf6',
-            '#f59e0b',
-            '#06b6d4',
-            '#64748b'
-          ],
+          data: categoryEntries.map(([, quantity]) => quantity),
+          backgroundColor: categoryEntries.map((_, index) => chartColors[index % chartColors.length]),
           borderWidth: 2,
           borderColor: '#ffffff'
         }]
