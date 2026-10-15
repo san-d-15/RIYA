@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +21,7 @@
       line-height: 1.6;
       white-space: pre;
     }
+
     .source-tab {
       padding: 0.5rem 0.85rem;
       border-radius: 6px;
@@ -28,12 +30,14 @@
       background: var(--slate-100);
       color: var(--slate-600);
     }
+
     .source-tab.active {
       background: var(--primary-600);
       color: #fff;
     }
   </style>
 </head>
+
 <body>
   <div class="app-container">
     <aside class="sidebar" id="app-sidebar"></aside>
@@ -64,12 +68,18 @@
         <div class="card">
           <div class="p-3 border-b border-slate-200">
             <div class="flex items-center gap-2 flex-wrap" id="source-tabs">
-              <button class="source-tab active" type="button" data-source="database/medical_store_db.sql">SQL schema</button>
-              <button class="source-tab" type="button" data-source="backend/src/main/java/com/medcare/config/DatabaseConnection.java">DatabaseConnection.java</button>
-              <button class="source-tab" type="button" data-source="backend/src/main/java/com/medcare/dao/UserDAO.java">UserDAO.java</button>
-              <button class="source-tab" type="button" data-source="backend/src/main/java/com/medcare/dao/MedicineDAO.java">MedicineDAO.java</button>
-              <button class="source-tab" type="button" data-source="backend/src/main/java/com/medcare/service/BillingService.java">BillingService.java</button>
-              <button class="source-tab" type="button" data-source="backend/src/main/java/com/medcare/util/PasswordUtil.java">PasswordUtil.java</button>
+              <button class="source-tab active" type="button" data-source="database/medical_store_db.sql">SQL
+                schema</button>
+              <button class="source-tab" type="button"
+                data-source="backend/src/main/java/com/medcare/config/DatabaseConnection.java">DatabaseConnection.java</button>
+              <button class="source-tab" type="button"
+                data-source="backend/src/main/java/com/medcare/dao/UserDAO.java">UserDAO.java</button>
+              <button class="source-tab" type="button"
+                data-source="backend/src/main/java/com/medcare/dao/MedicineDAO.java">MedicineDAO.java</button>
+              <button class="source-tab" type="button"
+                data-source="backend/src/main/java/com/medcare/service/BillingService.java">BillingService.java</button>
+              <button class="source-tab" type="button"
+                data-source="backend/src/main/java/com/medcare/util/PasswordUtil.java">PasswordUtil.java</button>
               <button class="source-tab" type="button" data-source="backend/pom.xml">pom.xml</button>
               <button class="source-tab" type="button" data-source="backend/README.md">Backend README</button>
             </div>
@@ -85,4 +95,5 @@
   <script src="/js/app.js"></script>
   <script src="/js/backend-explorer.js"></script>
 </body>
+
 </html>
